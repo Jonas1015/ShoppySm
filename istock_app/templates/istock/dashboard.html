@@ -1,0 +1,324 @@
+{% extends 'istock/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+{% load static %}
+{% load humanize %}
+<script type="text/javascript" src="{% static 'js/chart.js' %}"></script>
+
+<div class="outer_container">
+  <div class="container">
+    <!-- <div class="row"> -->
+      <div class="contents dashboard">
+        <div class="col-md-12">
+            <div class="d-flex w3-card summaries mt-2">
+                <a class="  col-3 summary" href="#">
+                  <span><h3>PURCHASES</h3></span>
+                  <h3>
+                    {{purchases_amount|floatformat:2|intcomma}} /=
+                  </h3>
+                </a>
+              <a class=" col-3 summary" href="#">
+                <span><h3>SALES</h3></span>
+                <h3>
+                  {{sales_amount|floatformat:2|intcomma}} /=
+                </h3>
+              </a>
+              <a class="col-3 summary" href="#">
+                <span><h3>EXPENSES</h3></span>
+                <h3>
+                  {{expenses_amount|floatformat:2|intcomma}} /=
+                </h3>
+              </a>
+              <a class="col-3 summary " href="#">
+                <span><h3>PROFIT</h3></span>
+                <h3>
+                  {{profit|floatformat:2|intcomma}} /=
+                </h3>
+              </a>
+          </div>
+        </div>
+      </div>
+<!-- ================================================= SALES ================================================================ -->
+    <div class="graph-div w3-card">
+      <div class="row graphs">
+        <div class="col-md-6">
+          <!-- <div class="selector">
+            <select class="form" id="chart">
+              <option value="bar"> Bar</option>
+              <option value="line">Line</option>
+              <option value="pie">Pie</option>
+              <option value="doughnut">Doughnut</option>
+            </select>
+          </div> -->
+          <h5 class="text-center">Sales</h5>
+              <canvas id="myChart" width="400" height="200"></canvas>
+                    <script>
+                      // const selector = document.querySelector('#chart');
+                      // selector.addEventListener('change', (e) => {
+                      //   const choice = e.target.value;
+                      // })
+                      var ctx = document.getElementById('myChart').getContext('2d');
+                      var myChart = new Chart(ctx, {
+                          type: "line",
+                          data: {
+                              labels: [{% for month in months %}"{{ month }}",{% endfor %}],
+                              datasets: [{
+                                  label: 'Number of sales per month',
+                                  data: [{% for sale in sales_count %}"{{ sale }}",{% endfor %}],
+                                  backgroundColor: [
+                                      'rgba(255, 99, 132, 0.2)',
+                                      'rgba(54, 162, 235, 0.2)',
+                                      'rgba(255, 206, 86, 0.2)',
+                                      'rgba(75, 192, 192, 0.2)',
+                                      'rgba(153, 102, 255, 0.2)',
+                                      'rgba(215, 159, 64, 0.2)',
+                                      'rgba(205, 129, 114, 0.2)',
+                                      'rgba(235, 159, 94, 0.2)',
+                                      'rgba(245, 129, 84, 0.2)',
+                                      'rgba(15, 119, 74, 0.2)',
+                                      'rgba(55, 169, 44, 0.2)',
+                                      'rgba(75, 109, 34, 0.2)',
+                                      // '#008080',
+                                      // '#000',
+                                      // 'orange',
+                                      // 'blue',
+                                      // 'orange',
+                                      // 'green',
+                                      // 'violet',
+                                      // 'purple',
+                                  ],
+                                  borderColor: [
+                                      'rgba(255, 99, 132, 1)',
+                                      'rgba(54, 162, 235, 1)',
+                                      'rgba(255, 206, 86, 1)',
+                                      'rgba(75, 192, 192, 1)',
+                                      'rgba(153, 102, 255, 1)',
+                                      'rgba(255, 159, 64, 1)'
+                                  ],
+                                  borderWidth: 1
+                              }]
+                          },
+                          options: {
+                              scales: {
+                                  yAxes: [{
+                                      ticks: {
+                                          beginAtZero: true
+                                      }
+                                  }]
+                              }
+                          }
+                      });
+                    </script>
+            </div>
+            <div class="col-md-6 ">
+              <!-- <div class="selector">
+                <select class="form" id="chart2">
+                  <option value="bar"> Bar</option>
+                  <option value="line">Line</option>
+                  <option value="pie">Pie</option>
+                  <option value="doughnut">Doughnut</option>
+                </select>
+              </div> -->
+              <h5 class="text-center">Expenses</h5>
+              <canvas id="myChart2" width="400" height="200"></canvas>
+                    <script>
+                    var ctx = document.getElementById('myChart2').getContext('2d');
+                    var myChart = new Chart(ctx, {
+                        type: "line",
+                        data: {
+                            labels: [{% for month in months%} "{{ month }}", {% endfor%}],
+                            datasets: [{
+                                label: '# of expenses per month',
+                                data: [{% for expense in expenses_count %} "{{ expense }}", {% endfor %}],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(215, 159, 64, 0.2)',
+                                    'rgba(205, 129, 114, 0.2)',
+                                    'rgba(235, 159, 94, 0.2)',
+                                    'rgba(245, 129, 84, 0.2)',
+                                    'rgba(15, 119, 74, 0.2)',
+                                    'rgba(55, 169, 44, 0.2)',
+                                    'rgba(75, 109, 34, 0.2)',
+                                    // '#008080',
+                                    // '#000',
+                                    // 'orange',
+                                    // 'blue',
+                                    // 'orange',
+                                    // 'green',
+                                    // 'violet',
+                                    // 'purple',
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                    </script>
+                  </div>
+                </div>
+            </div>
+
+
+<!-- ================================================= PURCHASES ================================================================ -->
+  <div class="graph-div w3-card mt-3">
+            <div class="row graphs ">
+                <div class="col-md-6 ">
+                  <!-- <div class="selector">
+                    <select class="form" id="chart">
+                      <option value="bar"> Bar</option>
+                      <option value="line">Line</option>
+                      <option value="pie">Pie</option>
+                      <option value="doughnut">Doughnut</option>
+                    </select>
+                  </div> -->
+                  <h5 class="text-center">Purchases</h5>
+                  <canvas id="myChart4" width="400" height="200"></canvas>
+                    <script>
+                    var ctx = document.getElementById('myChart4').getContext('2d');
+                    var myChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: [{% for month in months %}"{{ month }}",{% endfor %}],
+                            datasets: [{
+                                label: 'Amount of purchases',
+                                data: [{% for purchases in purchases_count %}"{{ purchases }}",{% endfor %}],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(215, 159, 64, 0.2)',
+                                    'rgba(205, 129, 114, 0.2)',
+                                    'rgba(235, 159, 94, 0.2)',
+                                    'rgba(245, 129, 84, 0.2)',
+                                    'rgba(15, 119, 74, 0.2)',
+                                    'rgba(55, 169, 44, 0.2)',
+                                    'rgba(75, 109, 34, 0.2)',
+                                    // '#008080',
+                                    // '#000',
+                                    // 'orange',
+                                    // 'blue',
+                                    // 'orange',
+                                    // 'green',
+                                    // 'violet',
+                                    // 'purple',
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                  </script>
+                  </div>
+
+                  <div class="col-md-6 ">
+                    <!-- <div class="selector">
+                      <select class="form" id="chart">
+                        <option value="bar"> Bar</option>
+                        <option value="line">Line</option>
+                        <option value="pie">Pie</option>
+                        <option value="doughnut">Doughnut</option>
+                      </select>
+                    </div> -->
+                    <h5 class="text-center">Net Profit</h5>
+                    <canvas id="myChart3" width="400" height="200"></canvas>
+                    <script>
+                    var ctx = document.getElementById('myChart3').getContext('2d');
+                    var myChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                          labels: [{% for month in months %}"{{ month }}",{% endfor %}],
+                          datasets: [{
+                              label: 'Amount of net profit',
+                              data: [{% for profit in profit_count %} "{{ profit }}", {% endfor %}],
+                              backgroundColor: [
+                                  'rgba(255, 99, 132, 0.2)',
+                                  'rgba(54, 162, 235, 0.2)',
+                                  'rgba(255, 206, 86, 0.2)',
+                                  'rgba(75, 192, 192, 0.2)',
+                                  'rgba(153, 102, 255, 0.2)',
+                                  'rgba(215, 159, 64, 0.2)',
+                                  'rgba(205, 129, 114, 0.2)',
+                                  'rgba(235, 159, 94, 0.2)',
+                                  'rgba(245, 129, 84, 0.2)',
+                                  'rgba(15, 119, 74, 0.2)',
+                                  'rgba(55, 169, 44, 0.2)',
+                                  'rgba(75, 109, 34, 0.2)',
+                                  // '#008080',
+                                  // '#000',
+                                  // 'orange',
+                                  // 'blue',
+                                  // 'orange',
+                                  // 'green',
+                                  // 'violet',
+                                  // 'purple',
+                              ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                    </script>
+                  </div>
+                </div>
+
+
+<!-- ================================================= EXPENSES ================================================================ -->
+
+          <!-- </div> -->
+        </div>
+      </div>
+{% endblock %}

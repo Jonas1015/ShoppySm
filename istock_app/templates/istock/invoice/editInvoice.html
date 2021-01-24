@@ -1,0 +1,60 @@
+{% extends 'istock/base.html' %}
+{% block title %}Prepare Invoice{% endblock %}
+{% load crispy_forms_tags %}
+{% block content%}
+  <div class="outer_container">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-10 offset-md-1">
+          <div class="contents">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                          <span aria-hidden="">&times;</span>
+                        </button>
+                        </div>
+                {% endfor %}
+            {%  endif %}
+            <div class="heading mt-5">
+            <h3> PREPARE PROFOMA INVOICE </h3>
+            </div> <hr>
+            <form action="{% url 'profoma' %}" method="post">
+              {% csrf_token %}
+              <!-- <section> -->
+                <div class="help-text text-center text-secondary">
+                  <p>Enter Customer details and print Profoma Invoice</p>
+                </div>
+                <hr>
+                <label for="name" class="form-group">Customer Name</label>
+                <input type="text" class="form-control" name="name" placeholder="Eg: Test Company LTD" required>
+              <!-- </section>
+              <section> -->
+                <label for="name" class="form-group mt-4">Physical Address</label>
+                <input type="text" class="form-control" name="physical_address" placeholder="Eg: 8th Floor Uhuru Building" required>
+              <!-- </section>
+              <section> -->
+                <label for="name" class="form-group mt-4">Postal Address</label>
+                <input type="text" class="form-control" name="postal_address" placeholder="Eg: P.O BOX 000 Dar es salaam">
+              <!-- </section>
+              <section> -->
+                <label for="name" class="form-group mt-4">TIN Number</label>
+                <input type="text" class="form-control" name="tin" placeholder="Eg: TIN">
+              <!-- </section>
+              <section> -->
+                <label for="name" class="form-group mt-4">VRN Number</label>
+                <input type="text" class="form-control" name="vrn" placeholder="Eg: VRN">
+              <!-- </section> -->
+              <input type="text" class = 'form-control' name="order" hidden=True value="{{ order }}">
+              <div class="d-flex mt-5 w3-right">
+                <a href="{% url 'add_sales' %}" class="btn btn-primary" style="background:blue"></a>
+                <button class="btn btn-success ml-5" style="background:green" type="submit" name="button">Download Profoma <i class="fa fa-download ml-4"></i></button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock%}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>iStock | Quick Links</title>
+      <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+      <link rel="stylesheet" href="{% static 'css/w3.css' %}">
+      <link rel="stylesheet" href="{% static 'style.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'font.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'fontawesome/css/all.css' %}">
+</head>
+<body>
+  <div class="dashBackgroundimg">
+    <div class="container">
+      <section>
+        <div class="row overlay pl-5">
+          <div class="col-md-2 col-sm-2 col-xs-2 icon">
+            <a href="{% url 'all_products' %}">
+              <i class="fa fa-cubes"></i>
+              <h3>PRODUCTS</h3>
+            </a>
+          </div>
+          <div class="col-md-2 col-sm-2 col-xs-2 icon">
+            <a href="{% url 'all_purchases' %}">
+              <i class="fa fa-shopping-cart"></i>
+              <h3>PURCHASES</h3>
+            </a>
+          </div>
+          <div class="col-md-2 col-sm-2 col-xs-2 icon">
+            <a href="{% url 'all_sales' %}">
+              <i class="fa fa-dollar-sign"></i>
+              <h3>SALES</h3>
+            </a>
+          </div>
+          <div class="col-md-2 col-sm-6 col-xs-6 icon">
+            <a href="{% url 'view_expenses' %}">
+              <i class="fa fa-calculator"></i>
+              <h3>EXPENSES</h3>
+            </a>
+          </div>
+          {% if user.is_admin %}
+          <div class="col-md-2 col-sm-2 col-xs-2 icon">
+            <a href="{% url 'percentages' %}">
+              <i class="fa fa-percentage"></i>
+              <h3>PERCENTAGES</h3>
+            </a>
+          </div>
+          {% endif %}
+          <div class="col-md-2 col-sm-6 icon">
+            <a href="{% url 'cash' %}">
+              <!-- <i class="fa fa-credit-card" aria-hidden="true"></i> -->
+              <i class="fa fa-credit-card" aria-hidden="true"></i>
+              <h3>TOTAL CASH</h3>
+            </a>
+          </div>
+          <div class="col-md-2 col-sm-6 icon">
+            <a href="{% url 'users' %}">
+              <i class="fa fa-cogs"></i>
+              <h3>SETTINGS</h3>
+            </a>
+          </div>
+          <div class="col-md-2 col-sm-6 icon">
+            <a href="{% url 'logout' %}">
+              <i class="fa fa-arrow-left"></i>
+              <h3>LOGOUT</h3>
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+    <script src="{% static 'script.js' %}"></script>
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'fontawesome/js/all.js' %}"></script>
+
+</body>
+</html>

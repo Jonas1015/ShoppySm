@@ -1,0 +1,63 @@
+{% extends 'istock/base.html' %}
+{% block title %}Prepare Invoice{% endblock %}
+{% load crispy_forms_tags %}
+{% block content%}
+  <div class="outer_container">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-10 offset-md-1">
+          <div class="contents">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                          <span aria-hidden="">&times;</span>
+                        </button>
+                        </div>
+                {% endfor %}
+            {%  endif %}
+            <div class="heading mt-5">
+            <h3> PREPARE {% if order.profoma %} PROFOMA {% endif %} INVOICE </h3>
+            </div> <hr>
+            <form {% if order.profoma %} action="{% url 'profoma' order.id %}" {% else %} action="{% url 'update_sales' order.id %} " {% endif %} method="post">
+            <form {% if order.profoma %} action="{% url 'profoma' %}" {% else %} action="{% url 'update_sales' order.id %} " {% endif %} method="post">
+              {% csrf_token %}
+              <!-- <section> -->
+                <div class="help-text text-center text-secondary">
+                  <p>Enter Customer details and print {% if order.profoma %} Profoma {% else %} an {% endif %} invoice</p>
+                </div>
+                <hr>
+                {{ form | crispy }}
+                <!-- <label for="name" class="form-group">Customer Name</label>
+                <input type="text" class="form-control" name="name" placeholder="Eg: Test Company LTD" required>
+
+                <label for="name" class="form-group mt-4">Physical Address</label>
+                <input type="text" class="form-control" name="physical_address" placeholder="Eg: 8th Floor Uhuru Building" required>
+
+                <label for="name" class="form-group mt-4">Postal Address</label>
+                <input type="text" class="form-control" name="postal_address" placeholder="Eg: P.O BOX 000 Dar es salaam">
+
+                <label for="name" class="form-group mt-4">TIN Number</label>
+                <input type="text" class="form-control" name="tin" placeholder="Eg: TIN">
+
+                <label for="name" class="form-group mt-4">VRN Number</label>
+                <input type="text" class="form-control" name="vrn" placeholder="Eg: VRN"> -->
+                {% for item in orderItems %}
+                  <label for="name" class="form-group mt-2">{{item.product.product_name}}</label>
+                  <input type="number" class="form-control" name="{{ item.product.product_name }}" value="{{ item.quantity }}">
+                {% endfor %}
+
+              <input type="text" class = 'form-control' name="order" hidden=True value="{{ order }}">
+              <div class="d-flex mt-5 w3-right">
+                <a {% if order.profoma %} href="{% url 'add_sales' %}" {% else %} href="{% url 'cancel-invoice' order.id %}" {% endif %} class="btn btn-danger" style="background:red"> {% if order.profoma %} Cancel {% else %} Cancel Order{% endif %}</a>
+
+                <button class="btn btn-success ml-5" style="background:green" type="submit" name="button">{% if order.profoma %} Download Profoma <i class="fa fa-download ml-4"></i> {% else %} Next <i class="fa fa-arrow-right ml-4"></i>{% endif %}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock%}

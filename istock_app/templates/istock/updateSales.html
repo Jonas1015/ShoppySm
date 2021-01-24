@@ -1,0 +1,37 @@
+{% extends 'istock/base.html' %}
+{% block title %}cross-check customer info{% endblock %}
+{% block content%}
+{% load crispy_forms_tags %}
+  <div class="outer_container">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-10 offset-md-1">
+          <div class="contents">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                          <span aria-hidden="">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {%  endif %}
+            <div class="heading mt-5">
+            <h3> CROSS-CHECK CUSTOMER INFORMATION</h3>
+            </div>
+            <form action="" method="post" class="mt-3">
+                {% csrf_token %}
+                  {{ form | crispy}}
+                  {% for item in order %}
+                    <label for="name" class="form-group mt-2">{{item.product.product_name}}</label>
+                    <input type="number" class="form-control" name="{{ item.product.product_name }}" value="{{ item.quantity }}">
+                  {% endfor %}
+                <button class="btn btn-primary btn-block mt-5" type="submit" name="button">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock%}

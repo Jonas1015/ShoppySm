@@ -1,0 +1,66 @@
+{% extends 'istock/base.html' %}
+{% block title %}Percentages{% endblock %}
+{% block content %}
+
+<div class="outer-container">
+<div class="container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-12">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {%  endif %}
+        <div class="heading">
+          <h3>PERCENTAGES</h3>
+        </div>
+        <a href="{% url 'add_percentage' %}"><button type="button" class="btn btn-outline-info mt-5" name="button">Add Percentage</button></a>
+        <a href="{% url 'price-applied' %}"><button type="button" class="btn btn-outline-success mt-5" name="button">Apply to products</button></a>
+        {% if percentages %}
+          <!-- <form class="form-inline mt-5 ml-2 block" method="GET">
+            <div class="searchBar">
+              <input type="text" name = "q" placeholder="Search Expense">
+              <button type="submit" class="btn btn-primary btnColor mb-2">Search</button>
+            </div>
+        </form> -->
+        <table class="table table-responsive table-bordered table-hover">
+            <tr>
+                <thead>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Percent</th>
+                  <th>Action</th>
+                </thead>
+            </tr>
+            <tbody>
+                {% for percentage in percentages %}
+                <tr>
+                  <td>{{forloop.counter}}</td>
+                  <td>{{percentage.name}}</td>
+                  <td>{{percentage.percent}}</td>
+                  <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                      <a href="{% url 'update_percentage' percentage.id %}" type="button" class="btn btn-outline-primary"><i class="fa fa-edit"></i></a>
+                      <a href="{% url 'delete_percentage' percentage.id %}" onclick="return confirm('Seriously Delete this percentage!? You won\'t be able to undo.');" type="button" class="btn btn-outline-danger"><i class="fa fa-trash"></i></a>
+                      </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <h1>Ooopps!! No Percentages loaded!</h1>
+              {% endif %}
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}

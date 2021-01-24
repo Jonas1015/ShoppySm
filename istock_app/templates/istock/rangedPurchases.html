@@ -1,0 +1,94 @@
+{% extends 'istock/base.html' %}
+{% block title %}Sales Report{% endblock %}
+{% block content %}
+{% load humanize %}
+<div class="outer-container">
+<div class="container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-12">
+        <div class="heading">
+          <h3>PURCHASE BY DATE</h3>
+        </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {%  endif %}
+        <form target="" method="post" class="mt-2">
+          {% csrf_token %}
+
+                  <div id="div_id_end_date" class="form-group">
+                    <label for="id_start_date" class=" requiredField">
+                        Start Date <span class="asteriskField">*</span>
+                    </label>
+                      <input type='date' name="start_date" id="id_start_date" class="form-control">
+                  </div>
+                <div id="div_id_end_date" class="form-group">
+                  <label for="id_end_date" class=" requiredField">
+                      End Date<span class="asteriskField">*</span>
+                  </label>
+                    <input  id="id_end_date" name="end_date" type="date" class="form-control">
+                </div>
+              <button class="btn btn-primary btn-block" type="submit" name="button">Fetch Purchases</button>
+          </form>
+        {% if purchases %}
+        <hr>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="content d-flex">
+              <div class="start_date mr-5">
+                <p>Start date: <span>{{ start_date | date:"F d Y" }}</span></p>
+              </div>
+              <div class="end_date mr-5">
+                <p>End date: <span>{{ end_date | date:"F d Y" }}</span></p>
+              </div>
+              <div class="end_date">
+                <p>Total Purchases Found: <span>{{ total_purchases }}</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <table class="table table-sm table-bordered table-hover">
+            <tr>
+                <!-- <thead class="thead-dark"> -->
+                <thead>
+                  <th>Date</th>
+                  <th>Code</th>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th> Price</th>
+                </thead>
+            </tr>
+            <tbody>
+                {% for purchase in purchases %}
+                <tr>
+                  <td>{{purchase.date}}</td>
+                  <td>{{purchase.product_name.code}}</td>
+                  <td>{{purchase.product_name}}</td>
+                  <td style="text-align: right">{{purchase.quantity}}</td>
+                  <td style="text-align: right">{{purchase.total_price|floatformat:2|intcomma }}</td>
+                  </tr>
+                {% endfor %}
+                <tr>
+                  <td colspan="4" >Total Amount:</td>
+                  <td style="text-align: right">{{ total_price|floatformat:2|intcomma }}</td>
+                </tr>
+              </tbody>
+            </table>
+              {% else %}
+                <h1>Ooopps!! No Purchases Loaded!</h1>
+              {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}

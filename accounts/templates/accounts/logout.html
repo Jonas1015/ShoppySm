@@ -1,0 +1,18 @@
+{% extends 'accounts/base.html' %}
+{% block title %} logout {% endblock %}
+{% block content %}
+      <div class="logout_container">
+        <div class="row">
+          <div class="user-column col-md-8 offset-md-2 mt-5  ">
+              <div class="content mt-5 col-6 offset-3">
+                <div class="logout w3-card mb-5 pt-5 pb-5 pl-5 pr-5 mt-5">
+                  <h2>You logged Out!</h2>
+                  <hr>
+                  <!-- <h6 class="text-muted">Click the link below to</h6> -->
+                  <a href="{% url 'login' %}" class="post-author btn btn-outline-info">Sign in again</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock content %}

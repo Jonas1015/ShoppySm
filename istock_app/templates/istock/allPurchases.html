@@ -1,0 +1,92 @@
+{% extends 'istock/base.html' %}
+{% block title %}All Purchases{% endblock %}
+{% block content %}
+
+<div class="outer-container">
+<div class="container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-12">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {%  endif %}
+        <div class="heading">
+          <h3>ALL PURCHASES</h3>
+        </div>
+        <a href="{% url 'add_purchase' %}"><button type="button" class="btn btn-outline-info mt-5" name="button">New Purchase</button></a>
+        {% if purchases %}
+        <a href="{% url 'ranged_purchases' %}" class="btn btn-outline-success mt-5">Search Date Range</a>
+          <!-- <form class="form-inline mt-5 ml-2 block" method="GET">
+            <div class="searchBar">
+              <input type="text" name = "q" placeholder="Search Purchase">
+              <button type="submit" class="btn btn-primary btnColor mb-2">Search</button>
+            </div>
+        </form> -->
+        <div class="w3-card">
+        <table id="table-p" class="table table-responsive table-bordered table-hover">
+              <!-- <thead class="thead-dark"> -->
+            <thead>
+              <tr>
+                  <!-- <th>#</th> -->
+                  <th>Purchase Date</th>
+                  <th>Code</th>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Action</th>
+            </tr>
+          </thead>
+            <tbody>
+                {% for purchase in purchases %}
+                <tr>
+                  <!-- <td>{{forloop.counter}}</td> -->
+                  <td>{{purchase.date | date:"F d Y" }}</td>
+                  <td>{{purchase.product_name.code}}</td>
+                  <td>{{purchase.product_name}}</td>
+                  <td>{{purchase.quantity}}</td>
+                  <td>{{purchase.total_price}}</td>
+                  <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                      <a href="{% url 'update_purchase' purchase.id %}" type="button" class="btn btn-outline-primary"><i class="fa fa-edit"></i></a>
+                      <a href="{% url 'view_purchase' purchase.id %}" type="button" class="btn btn-outline-info"><i class="fa fa-eye"></i></a>
+                      <a href="{% url 'delete_purchase' purchase.id %}" onclick="return confirm('Seriously Delete this purchase!?');" type="button" class="btn btn-outline-danger"><i class="fa fa-trash"></i></a>
+                      <!-- <a href="#" target="_blank"><button type="button" class="btn btn-secondary"><i class="fa fa-download"></i> pdf</button></a> -->
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <h1>Ooopps!! No Purchases to load!</h1>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+// Data table
+  $(document).ready(function(){
+    $('#table-p').DataTable({
+      // dom: 'B<"clear">lfrtip',
+      // button: {
+      //   name: 'primary',
+      //   button: ['copy', 'csv', 'excel', 'pdf']
+      // }
+    });
+  });
+</script>
+{% endblock js %}

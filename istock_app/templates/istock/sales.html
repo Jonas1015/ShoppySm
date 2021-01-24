@@ -1,0 +1,109 @@
+{% extends 'istock/base.html' %}
+{% block title %}All Sales{% endblock %}
+{% load humanize %}
+{% block content %}
+<div class="outer-container">
+  <div class="container">
+    <div class="row">
+      <div class="contents">
+        <div class="col-md-12">
+          {% if messages %}
+              {% for message in messages %}
+                  <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                      {{ message }}
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="">&times;</span>
+                      </button>
+                  </div>
+              {% endfor %}
+          {%  endif %}
+          <div class="heading sales-heading">
+            <h3>SALES LIST</h3>
+          </div>
+          {% if mySales %}
+            <!-- <form class="form-inline mt-5 ml-2 block" method="GET">
+              <div class="searchBar">
+                <input type="text" name = "q" placeholder="Search Sales">
+                <button type="submit" class="btn text-white btnColor">Search</button>
+              </div>
+            </form> -->
+            <div class="sales-table mt-2">
+            <a href="{% url 'sales_report' %}" class="btn btn-outline-success mt-3">View By Date</a>
+            {% endif %}
+            <a href="{% url 'add_sales' %}" class="btn btn-outline-info mt-3">Make New Sales</a>
+            {% if mySales %}
+            <div class="w3-card mt-3 ">
+            <table id="table-s" class="table table-responsive table-bordered table-hover">
+              <thead>
+              <tr>
+                  <!-- <thead class="thead-dark"> -->
+
+                    <th>Date</th>
+                    <th>Inv. No</th>
+                    <th>Customer</th>
+                    <th>Sales particulars</th>
+                    <th class="w3-hide-small">Number of Items</th>
+                    <th class="w3-hide-small">Total Price</th>
+                    <th>Seller </th>
+                    <th>Action</th>
+              </tr>
+            </thead>
+              <tbody>
+                  {% for sale in mySales %}
+                  <tr>
+                    <td>{{sale.date_added |date:"F d Y"}}</td>
+                    <td>{{sale.id}}</td>
+                    <td>{{sale.customer_name}}</td>
+                    <td>{% for item in sale.order %} {{item.product_name}} - {{ item.quantity }} <br> {% endfor %}</td>
+                    <td class="w3-hide-small">{{sale.get_cart_items}}</td>
+                    <td class="w3-hide-small">{{sale.get_total_amount|floatformat:2|intcomma }}</td>
+                    <td>{{sale.seller}}</td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                        <a href="{% url 'update_sales' sale.id %}" type="button" class="btn btn-outline-primary"><i class="fa fa-edit"></i></a>
+                        <a href="{% url 'view_sales' sale.id %}" type="button" class="btn btn-outline-info"><i class="fa fa-eye"></i></a>
+                        <a href="{% url 'reprint-invoice' sale.id %}" type="button" class="btn btn-outline-secondary"><i class="fa fa-download"></i></a>
+                        <a href="{% url 'cancel-invoice' sale.id %}" type="button" onclick="return confirm('Seriously cancel this Sales!?');" class="btn btn-outline-success"><i class="fa fa-times"></i></a>
+                        {% if user.is_admin %}
+                        <a href="{% url 'delete_sales' sale.id %}" onclick="return confirm('Seriously Delete this Sales!?');" type="button" class="btn btn-outline-danger"><i class="fa fa-trash"></i></a>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                {% else %}
+                  <h1>Ooopps!! No Sales to load!</h1>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+// Data table
+  $(document).ready(function(){
+    $('#table-s').DataTable({
+      // dom: 'B<"clear">lfrtip',
+      button: {
+        name: 'primary',
+        button: ['copy', 'csv', 'excel', 'pdf']
+      }
+    });
+    $('#table_2').DataTable({
+      dom: 'B<"clear">lfrtip',
+      button: {
+        name: 'primary',
+        button: ['copy', 'csv', 'excel', 'pdf']
+      }
+    });
+  });
+</script>
+{% endblock js %}

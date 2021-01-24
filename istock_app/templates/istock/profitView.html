@@ -1,0 +1,50 @@
+{% extends 'istock/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Profit View{% endblock %}
+{% block content %}
+{% load humanize %}
+<div class="outer-container">
+<div class="container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-12">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {%  endif %}
+        <div class="heading">
+          <h3>PROFIT VIEW</h3>
+        </div>
+        <form  target="" method="post">
+          {% csrf_token %}
+              <div class="d-flex">
+                  <div class="col-md-6 ">
+                      <label for="date1">From <span>*</span></label>
+                      <input class="form-control" type="date" name="first_date" min= "0" id="date1" required>
+                    </div>
+                    <div class="col-md-6 mb-5">
+                      <label for="date2">To <span>*</span></label>
+                      <input class="form-control" type="date" name="last_date" min= "0" id="date2" required>
+                    </div>
+              </div>
+              <div class="row" >
+                <div class="col-md-12 mb-5">
+                  <label for="#expenses"> Expenses<span>*</span></label>
+                  <input class="form-control" type="number" name="expenses" value="{{ expenses|floatformat:2 }}" min= "0" max = "{{ expenses|floatformat:2}}" id="expenses" required>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-block" type="submit" name="button">View</button>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}

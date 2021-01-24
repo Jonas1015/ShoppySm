@@ -1,0 +1,28 @@
+{% extends 'accounts/base.html' %}
+{% block title %}{{ profile.user.first_name }} Profile {% endblock %}
+{% block content %}
+      <div class="profile-container">
+        <div class="row">
+          <div class="content col-md-12">
+            <div class="profile_card w3-card col-12 ">
+              {% if profile %}
+              <div class="elements ">
+                <img class="img-profile rounded-circle" src="{{ profile.profile_pic.url }}" alt="">
+                <h4>{{ profile.user.first_name }}</h4>
+                <div class="my-3">
+                    <a class="btn btn-danger ml-2" href="#">Change Password</a>
+                </div>
+              <div class="button">
+                <a class="btn btn-info btn-block" href="{% url 'accounts:profile-update' %}">Edit Profile</a>
+              </div>
+            </div>
+          {% else %}
+            <div class="my-3 mt-5 pt-5">
+              <h1>{{message}}</h1>
+            </div>
+          {% endif %}
+      </div>
+      </div>
+      </div>
+    </div>
+{% endblock content %}

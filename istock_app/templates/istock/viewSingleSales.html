@@ -1,0 +1,62 @@
+{% extends 'istock/base.html' %}
+{% block title %}Sales detailed View{% endblock %}
+{% block content %}
+{% load humanize %}
+<div class="outer-container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-6 offset-md-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {%  endif %}
+        <div class="heading">
+          <h3>SINGLE SOLD ORDER  </h3>
+        </div>
+        <div class=" w3-card pb-5">
+
+          <table class="table table-hover table-bordered">
+            <tbody>
+              <tr>
+                <td>Sales Date</td>
+                <td>{{mySales.date_added|date:"F d Y"}}</td>
+              </tr>
+              <tr>
+                <td>Sales ID</td>
+                <td>{{mySales.id}}</td>
+              </tr>
+              <tr>
+                <td>Quantity</td>
+                <td>{{mySales.get_cart_items}} Item(s)</td>
+              </tr>
+              <tr>
+                <td>Sold Products</td>
+                <td>{% for item in mySales.order %} {{item.product_name}} - {{item.quantity}} <br> {% endfor %}</td>
+              </tr>
+              <tr>
+                <td>Total Price</td>
+                <td>{{mySales.get_total_amount|floatformat:2|intcomma}}</td>
+              </tr>
+              <tr>
+                <td>VAT (18%)</td>
+                <td>{{mySales.getVAT|floatformat:2|intcomma}}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="d-flex w3-right">
+            <a href="{% url 'all_sales' %}" class="btn btn-outline-success mr-5">Back</a>
+            <a href="{% url 'update_sales' mySales.id %} " class="btn btn-outline-primary ml-5">Edit</a>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

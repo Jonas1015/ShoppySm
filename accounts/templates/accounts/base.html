@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      {% load static %}
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <title>ShoppySm | {% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/w3.css' %}">
+        <link rel="stylesheet" href="{% static 'style.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'font.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'fontawesome/css/all.css' %}">
+
+  </head>
+  <body>
+        <nav class="navbar navbar-expand-lg navback fixed-top">
+            <a class="navbar-brand" href="{% url 'home' %}">ShoppySm</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon">
+                <i class="fas fa-bars"></i>
+              </span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                  <a  class="nav-link" href="{% url 'home' %}">Home</a>
+                </li>
+              {% if user.is_authenticated %}
+                <li class="nav-item active">
+                  <a class="nav-link" href="{% url 'users' %}"> Dashboard <span class="sr-only">(current)</span></a>
+                </li>
+              </ul>
+              <div class="w3-dropdown-hover">
+                  <a class="nav-link settings"><i class="fa fa-cogs mr-3"></i>Settings</a>
+                  <div class="w3-dropdown-content w3-bar-block navback">
+                    <a href="{% url 'change-password' %}" class="w3-bar-item "><i class="fa fa-key mr-3"></i>Change Password </a>
+                    <a href="{% url 'logout' %}" class="w3-bar-item "><i class="fa fa-arrow-right mr-3" aria-hidden="true"></i>Logout </a>
+                  </div>
+              </div>
+              {% endif %}
+            </div>
+          </nav>
+          {% if user.is_authenticated %}
+          <div class="w3-sidebar w3-bar-block navback w3-hide-small" style="width:15%" >
+            <a href="{% url 'users' %}" class="w3-bar-item btn"><i class="fa fa-table mr-3"></i>Dashboard</a>
+            <a class="w3-bar-item btn" onclick="myAccFunc()">
+            <i class="fa fa-user mr-3"></i>Profile</a>
+            <div id="demoAcc" class="w3-hide ml-4">
+              <a href="#" class="w3-bar-item btn">View</a>
+              <a href="#" class="w3-bar-item btn">Update</a>
+            </div>
+
+            <!-- <a class="w3-bar-item btn" onclick="myAccFunc1()">
+            <i class="fa fa-eye mr-3"></i>Settings</a>
+            <div id="demoAcc1" class="w3-hide ml-4">
+              <a href="#" class="w3-bar-item btn">Change Password</a>
+              <a href="#" class="w3-bar-item btn">Logout</a>
+              <a href="{%  url 'all_sales' %}" class="w3-bar-item btn">Sales</a>
+              <a href="{% url 'view_expenses' %}" class="w3-bar-item btn">Expenses</a>
+            </div> -->
+
+            <a class="w3-bar-item btn" onclick="myAccFunc2()">
+            <i class="fa fa-cogs mr-3"></i>Settings</a>
+            <div id="demoAcc2" class="w3-hide ml-4">
+              <a href="{% url 'change-password' %}" class="w3-bar-item btn">Change Password</a>
+              <a href="{% url 'logout' %}" class="w3-bar-item btn">Logout</a>
+            </div>
+          </div>
+
+          <div class="outer_container">
+            <div class="container">
+              <div class="row">
+                <div class="col-md-12 ">
+
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          <div class="page">
+            {% block content %}{% endblock %}
+
+            <footer class="footer pb-3 pt-3 text-center">
+              <p>Copyright &copy ShoppySm Developer <script>document.write(new Date().getFullYear());</script>. All rights reserved</p>
+            </footer>
+          </div>
+
+
+
+      <script type="text/javascript">
+      function myAccFunc() {
+        var x = document.getElementById("demoAcc");
+        if (x.className.indexOf("w3-show") == -1) {
+          x.className += " w3-show";
+        } else {
+          x.className = x.className.replace(" w3-show", "");
+        }
+      }
+      function myAccFunc1() {
+        var x = document.getElementById("demoAcc1");
+        if (x.className.indexOf("w3-show") == -1) {
+          x.className += " w3-show";
+        } else {
+          x.className = x.className.replace(" w3-show", "");
+        }
+      }
+      function myAccFunc2() {
+        var x = document.getElementById("demoAcc2");
+        if (x.className.indexOf("w3-show") == -1) {
+          x.className += " w3-show";
+        } else {
+          x.className = x.className.replace(" w3-show", "");
+        }
+      }
+      </script>
+
+      <script src="{% static 'script.js' %}"></script>
+      <script src="{% static 'js/jquery.js' %}"></script>
+      <script src="{% static 'js/bootstrap.min.js' %}"></script>
+      <script type="text/javascript" src="{% static 'fontawesome/js/all.js' %}"></script>
+
+  </body>
+  </html>

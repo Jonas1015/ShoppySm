@@ -1,0 +1,95 @@
+{% extends 'istock/base.html' %}
+{% block title %}All deposits{% endblock %}
+{% block content %}
+{% load humanize %}
+<div class="outer-container">
+<div class="container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-12">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {%  endif %}
+        <div class="heading">
+          <h3>DEPOSITS</h3>
+        </div>
+        {% if deposits %}
+          <form class="form-inline mt-5 ml-2 block" method="GET">
+            <div class="searchBar">
+              <input type="text" name = "q" placeholder="Search deposit">
+              <button type="submit" class="btn text-white btnColor mb-2">Search</button>
+            </div>
+        </form>
+        <div class="sales-table"></div>
+        <div class="d-flex w3-right mt-4">
+          <h4 class="mr-5">Total:</h4>
+          <h4>{{ amount }}</h4>
+        </div>
+        <div class="w3-card">
+
+        <table id="table-d" class="table table-responsive table-bordered table-hover">
+          <tr>
+                <!-- <thead class="thead-dark"> -->
+                <thead>
+                  <th>Deposit Date</th>
+                  <th>Deposited by</th>
+                  <th>Deposit Amount</th>
+                  <th>Bank</th>
+                  <th class="w3-hide-small">From</th>
+                  <th class="w3-hide-small">To</th>
+                  <th>Action</th>
+                </thead>
+            </tr>
+            <tbody>
+                {% for deposit in deposits %}
+                <tr>
+                  <td>{{ deposit.deposition_date | date:"F d Y" }}</td>
+                  <td>{{ deposit.deposited_by.username }}</td>
+                  <td>{{ deposit.amount|floatformat:2|intcomma }}</td>
+                  <td>{{ deposit.bank }}</td>
+                  <td class="w3-hide-small">{{ deposit.first_date | date:"F d Y" }}</td>
+                  <td class="w3-hide-small">{{ deposit.last_date | date:"F d Y" }}</td>
+                  <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                      <a href="#" type="button" class="btn btn-outline-primary"><i class="fa fa-edit"></i></a>
+                      <a href="#" type="button" class="btn btn-outline-info"><i class="fa fa-eye"></i></a>
+                      <a href="{% url 'delete_deposit' deposit.id %}" onclick="return confirm('Seriously Delete this deposit!?');" type="button" class="btn btn-outline-danger"><i class="fa fa-trash"></i></a>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <h1>Ooopps!! Deposits Not Found!</h1>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+// Data table
+  $(document).ready(function(){
+    $('#table-d').DataTable({
+      // dom: 'B<"clear">lfrtip',
+      // button: {
+      //   name: 'primary',
+      //   button: ['copy', 'csv', 'excel', 'pdf']
+      // }
+    });
+  });
+</script>
+{% endblock %}

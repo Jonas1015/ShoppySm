@@ -1,0 +1,101 @@
+{% extends 'istock/base.html' %}
+{% block title %}All Products{% endblock %}
+{% block content %}
+{% load humanize %}
+<div class="outer-container">
+<div class="container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-12">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {%  endif %}
+        {% if low %}
+            <div class="alert alert-danger fade show" role="alert">
+                Check for Yellow rows, products are about to be finished!
+            </div>
+          {% endif %}
+        <div class="heading">
+          <h3>PRODUCTS LIST</h3>
+        </div>
+        <a href="{% url 'add_product' %}" class="btn btn-outline-info">Add New</a>
+        {% if myProducts %}
+          <!-- <form class="form-inline mt-5 ml-2 block" method="GET">
+            <div class="searchBar">
+              <input type="text" name = "q" placeholder="Search Product">
+              <button type="submit" class="btn text-white btnColor mb-2">Search</button>
+            </div>
+        </form> -->
+        <div class="sales-table w3-card mt-5">
+          <table id="table" class="table table-responsive table-bordered table-hover">
+            <thead>
+              <tr>
+                  <!-- <thead class="thead-dark"> -->
+                    <th>Product Code</th>
+                    <th>Product Name</th>
+                    <th>Quantity in the Stock</th>
+                    <th class="w3-hide-small">Buying Price @</th>
+                    <th class="w3-hide-small">Selling Price @</th>
+                    <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for product in myProducts %}
+                <tr {% if product in low %} class = "bg-warning" {% endif %}>
+                  <td>{{ product.code }}</td>
+                  <td>{{ product.product_name }}</td>
+                  <td>{{ product.quantity }}</td>
+                  <td class="w3-hide-small">{{ product.buying_price_per_each|floatformat:2|intcomma }}</td>
+                  <td class="w3-hide-small">{{ product.selling_price_per_each|floatformat:2|intcomma }}</td>
+                  <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                      <a href="{% url 'update_product' product.id %}" type="button" class="btn btn-outline-primary"><i class="fa fa-edit"></i></a>
+                      <a href="{% url 'view_product' product.id %}" type="button" class="btn btn-outline-info"><i class="fa fa-eye"></i></a>
+                      <a href="{% url 'delete_product' product.id %}" onclick="return confirm('Seriously Delete this product!?');" type="button" class="btn btn-outline-danger"><i class="fa fa-trash"></i></a>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <h1>Ooopps!! Products Not Found!</h1>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+// Data table
+  $(document).ready(function(){
+    $('#table').DataTable({
+      // dom: 'B<"clear">lfrtip',
+      button: {
+        name: 'primary',
+        button: ['copy', 'csv', 'excel', 'pdf']
+      }
+    });
+    // $('#table_2').DataTable({
+    //   dom: 'B<"clear">lfrtip',
+    //   button: {
+    //     name: 'primary',
+    //     button: ['copy', 'csv', 'excel', 'pdf']
+    //   }
+    // });
+  });
+</script>
+{% endblock js %}

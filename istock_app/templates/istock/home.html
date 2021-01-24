@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% load static %}
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+      <link rel="stylesheet" href="{% static 'css/w3.css' %}">
+      <link rel="stylesheet" href="{% static 'style.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'font.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'fontawesome/css/all.css' %}">
+      <title>ShoppySm | HomePage</title>
+  </head>
+    <body>
+      <div class="backgroundimg">
+        <div class="row opaq">
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="text-background">
+              <div class="home-text">
+                <h1>YOUR SHOP MANAGEMENT <span>System</span></h1>
+              </div>
+            </div>
+            {% if user.is_authenticated %}
+            <div class="button">
+              <a {% if request.user.is_admin %}href="{% url 'dashboard' %}"{% else %}href="{% url 'quick-links' %}"{% endif %} class="btn btn-outline-info">Continue <i class="fa fa-arrow-right"></i></a>
+            </div>
+            {% else %}
+            <div class="button">
+              <a href="{% url 'login' %}" class="btn btn-outline-info">Login <i class="fa fa-user"></i></a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+
+
+          <script src="{% static 'script.js' %}"></script>
+          <script src="{% static 'js/jquery.js' %}"></script>
+          <script src="{% static 'js/bootstrap.min.js' %}"></script>
+          <script type="text/javascript" src="{% static 'fontawesome/js/all.js' %}"></script>
+    </body>
+</html>

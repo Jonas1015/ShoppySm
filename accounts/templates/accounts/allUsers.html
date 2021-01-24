@@ -1,0 +1,114 @@
+{% extends 'accounts/base.html' %}
+{% block title %} View all Users {% endblock %}
+{% block content %}
+<div class="outer-container">
+  <div class="container">
+    <div class="row">
+      <div class="contents">
+        <div class="col-md-12">
+          {% if messages %}
+              {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-5 mb-5" role="alert">
+                      {{ message }}
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="">&times;</span>
+                      </button>
+                  </div>
+              {% endfor %}
+          {%  endif %}
+          <div class="heading">
+            <h3>USERS</h3>
+          </div>
+          <div class="mt-3 w3-hide-small">
+            <a href="{% url 'add-user' %}" class="btn btn-outline-info"> <i class="fa fa-plus "></i>Add New User</a>
+          </div>
+          <!-- <form class="form-inline mt-5 ml-2 block" method="GET">
+            <div class="searchBar">
+              <input type="text" name = "q" placeholder="Search User">
+              <button type="submit" class="btn text-white mb-2">Search</button>
+            </div>
+          </form> -->
+          {% if users %}
+            <div class="w3-card mt-5">
+
+              <table id="table-u" class="table table-responsive table-bordered table-striped table-hover">
+                <thead>
+                  <tr>
+                  <!-- <thead class="thead-dark"> -->
+
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Active</th>
+                    <th>Admin</th>
+                    <th>Shopkeeper</th>
+                    <th>Action</th>
+              </tr>
+            </thead>
+              <tbody>
+                  {% for user in users %}
+
+                    {% if not user.is_superuser %}
+                      <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }} </td>
+                        <td>{{ user.first_name }} {{ user.last_name }}</td>
+                        <td class="text-center">
+                          {% if  user.is_active  == True %}
+                            <i class="fa fa-check text-success"></i>
+                          {% else %}
+                            <i class="fa fa-window-close text-danger"></i>
+                          {% endif %}
+                        </td>
+                        <td class="text-center">
+                          {% if  user.is_admin  == True %}
+                          <i class="fa fa-check text-success"></i>
+                          {% else %}
+                          <i class="fa fa-window-close text-danger"></i>
+                          {% endif %}
+                        </td>
+                        <td class="pr-4 text-center">
+                          {% if  user.is_shopkeeper  == True %}
+                            <i class="fa fa-check text-success"></i>
+                          {% else %}
+                            <i class="fa fa-window-close text-danger"></i>
+                          {% endif %}
+                        </td>
+                        <td class="text-center">
+                          <div class="btn-group" role="group" aria-label="Basic example">
+                            <a href="{% url 'update-user' user.id %}" type="button" class="btn btn-outline-primary mr-2"><i class="fa fa-edit"></i></a>
+                            <a href="{% url 'delete-user' user.id %}" onclick="return confirm('Seriously Delete this!?');" type="button" class="btn btn-outline-danger"><i class="fa fa-trash"></i></a>
+                            </div>
+                        </td>
+                      </tr>
+                      {% endif   %}
+                  {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          {% else %}
+          <h1>Ooopps!! No Users loaded!</h1>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+// Data table
+  $(document).ready(function(){
+    $('#table-u').DataTable({
+      // dom: 'B<"clear">lfrtip',
+      // button: {
+      //   name: 'primary',
+      //   button: ['copy', 'csv', 'excel', 'pdf']
+      // }
+    });
+  });
+</script>
+{% endblock js %}

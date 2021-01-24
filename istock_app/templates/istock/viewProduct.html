@@ -1,0 +1,66 @@
+{% extends 'istock/base.html' %}
+{% block title %}Product detailed View{% endblock %}
+{% block content %}
+{% load humanize %}
+<div class="outer-container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-6 offset-md-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {%  endif %}
+        <div class="heading">
+          <h3>VIEW A SINGLE PRODUCT  </h3>
+        </div>
+        <div class=" w3-card pb-5">
+          <h3 class="text-center">DETAILS</h3>
+          <table class="table table-hover table-bordered">
+            <tbody>
+              <tr>
+                <td>Product Name</td>
+                <td>{{myProduct.product_name}}</td>
+              </tr>
+              <tr>
+                <td>Quantity</td>
+                <td>{{myProduct.quantity}}</td>
+              </tr>
+              <tr>
+                <td>Buying Price</td>
+                <td>{{myProduct.buying_price_per_each|floatformat:2|intcomma}}</td>
+              </tr>
+              <tr>
+                <td>Selling Price</td>
+                <td>{{myProduct.selling_price_per_each|floatformat:2|intcomma}}</td>
+              </tr>
+              <tr>
+                <td>Total Buying price</td>
+                <td>{{buying_price|floatformat:2|intcomma}}</td>
+              </tr>
+              <tr>
+                <td>Total Selling price</td>
+                <td>{{selling_price|floatformat:2|intcomma}}</td>
+              </tr>
+              <tr>
+                <td>Profit</td>
+                <td>{{profit|floatformat:2|intcomma}}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="row d-flex ml-2 w3-right">
+            <a href="{% url 'all_products' %}" class="btn btn-outline-success mr-5">Back</a>
+            <a href="{% url 'update_product' myProduct.id %}" class="btn btn-outline-primary  ml-5 mr-2">Update</a>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

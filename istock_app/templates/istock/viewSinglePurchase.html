@@ -1,0 +1,60 @@
+{% extends 'istock/base.html' %}
+{% block title %}Purchase detailed View{% endblock %}
+{% block content %}
+<div class="outer-container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-6 offset-md-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {%  endif %}
+        <div class="heading">
+          <h3>VIEW A SINGLE PRODUCT PURCHASE </h3>
+        </div>
+        <div class=" w3-card">
+          <div class="btn-head">
+              <h3>DETAILS</h3>
+              <a href="{% url 'update_purchase' purchase.id %}"><button type="button" class="btn" name="button"><i class="fa fa-pencil "></i>Update</button></a>
+          </div>
+          <table class="table table-hover table-bordered">
+            <tbody>
+              <tr>
+                <td>Product Name</td>
+                <td>{{purchase.product_name}}</td>
+              </tr>
+              <tr>
+                <td>Quantity</td>
+                <td>{{purchase.quantity}}</td>
+              </tr>
+              <tr>
+                <td>Price per unit</td>
+                <td>{{purchase.price_per_unit}}</td>
+              </tr>
+              <tr>
+                <td>other_expenses</td>
+                <td>{{purchase.other_expenses}}</td>
+              </tr>
+              <tr>
+                <td>Total Price</td>
+                <td>{{purchase.total_price}}</td>
+              </tr>
+              <tr>
+                <td>Date</td>
+                <td>{{purchase.date}}</td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

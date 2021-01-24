@@ -1,0 +1,150 @@
+{% extends 'istock/base.html' %}
+{% block title %}Sales Report{% endblock %}
+{% block content %}
+{% load humanize %}
+<div class="outer-container">
+<div class="container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-12">
+        <div class="heading">
+          <h3>SALES REPORT</h3>
+        </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {%  endif %}
+        <form target="" method="post" class="mt-2">
+          {% csrf_token %}
+
+                  <div id="div_id_end_date" class="form-group">
+                    <label for="id_start_date" class=" requiredField">
+                        Start Date <span class="asteriskField">*</span>
+                    </label>
+                      <input type='date' name="start_date" id="id_start_date" class="form-control">
+                  </div>
+                <div id="div_id_end_date" class="form-group">
+                  <label for="id_end_date" class=" requiredField">
+                      End Date<span class="asteriskField">*</span>
+                  </label>
+                    <input  id="id_end_date" name="end_date" type="date" class="form-control">
+                </div>
+              <button class="btn btn-primary btn-block" type="submit" name="button">Fetch Sales</button>
+          </form>
+        {% if sales %}
+          <!-- <form class="form-inline mt-5 ml-2 block" method="GET">
+            <div class="searchBar">
+              <input type="text" name = "q" placeholder="Search Product">
+              <button type="submit" class="btn btn-primary btnColor mb-2">Search</button>
+            </div>
+        </form> -->
+        <hr>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="content d-flex">
+              <div class="start_date mr-5">
+                <p>Start date: <span>{{ start_date | date:"F d Y" }}</span></p>
+              </div>
+              <div class="end_date mr-5">
+                <p>End date: <span>{{ end_date | date:"F d Y" }}</span></p>
+              </div>
+              <div class="end_date mr-5">
+                <p>Total Sales Found: <span>{{ total_products }}</span></p>
+              </div>
+              <div class="end_date ml-5">
+                <form action="{% url 'print_sales_report' %}" method="post">
+                  {% csrf_token %}
+                  <input type="date" hidden="True" name="start_date" value="{{start_date| date:'Y-m-d'}}">
+                  <input type="date" hidden="True" name="end_date" value="{{end_date| date:'Y-m-d'}}">
+                  <button type="submit" name="button" class="btn text-white">
+                    Print <i class="fa fa-print fa-lg ml-2"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <table class="table table-sm table-bordered table-hover">
+            <tr>
+                <!-- <thead class="thead-dark"> -->
+                <thead>
+                  <th>Date Sold</th>
+                  <th>Inv. Code</th>
+                  <th>Customer Name</th>
+                  <th>Order particulars</th>
+                  <th>Sold By</th>
+                  <th> Total Quantity Sold</th>
+                  <th>Total Selling Price</th>
+                </thead>
+            </tr>
+            <tbody>
+                {% for sale in sales %}
+                <tr>
+                  <td>{{sale.date_added|date:"F d Y"}}</td>
+                  <td>{{sale.id}}</td>
+                  <td>{{sale.customer_name}}</td>
+                  <td>{% for item in sale.order %}
+                    {{item.product.product_name}} - {{ item.quantity }} <br>
+                    {% endfor %}
+                  </td>
+                  <td style="text-align: right">{{ sale.seller }}</td>
+                  <td style="text-align: right">{{sale.get_cart_items }}</td>
+                  <td style="text-align: right">{{sale.get_total_amount|floatformat:2|intcomma }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                  <td colspan="6" >Total Amount:</td>
+                  <td style="text-align: right">{{ total_sales|floatformat:2|intcomma }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="row">
+              <div class="col-md-8 offset-md-2">
+                <div class=" pt-0 pl-5">
+                  <div class=" overall-header ">
+                    <h3>Overall</h3>
+                  </div>
+                  <table class="table table-sm table-bordered table-hover">
+                    <tr>
+                      <thead>
+                        <th>Total Sales </th>
+                        <th>Total Buying Price </th>
+                        <th>Total Profit</th>
+                        <th>V.A.T</th>
+                        <th>Net Profit</th>
+                      </thead>
+                    </tr>
+                    <tr>
+
+                      <td>{{total_sales|floatformat:2|intcomma }}</td>
+                      <td>{{total_buying_price|floatformat:2|intcomma }}</td>
+                      <td>{{ total_profit|floatformat:2|intcomma }}</td>
+                      <td>{{ vat|floatformat:2|intcomma }}</td>
+                      <td>
+                        <strong>
+                          {{ net_profit|floatformat:2|intcomma }}
+                        </strong>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+              {% else %}
+                <h1>Ooopps!! No Sales loaded!</h1>
+              {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}

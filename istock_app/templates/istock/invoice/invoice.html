@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+{% load humanize %}
+<html lang="en" dir="ltr">
+  <head>
+    <style>
+
+      .heading {
+        background: rgba(0, 130, 170, 0.7);
+        color: #ffffff;
+        padding: 10px 0 10px 0;
+        text-align: center;
+        font-size: 15px;
+      }
+      .to h3 {
+        margin-left: 5vw;
+      }
+      td {
+        text-align: center;
+        font-size: 12px;
+        padding-top: 5px;
+      }
+      td p {
+        text-align: center;
+        font-size: 12px;
+      }
+      .d-flex {
+        display: flex;
+      }
+      .d-flex .sign {
+        justify-content: flex-start;
+      }
+      .d-flex .seller {
+        justify-content: flex-end;
+      }
+      footer {
+        background: rgba(0, 130, 170, 0.7);
+        color: #ffffff;
+        text-align: center;
+        margin: 95vh 0 0 0;
+        padding: 50px 0 20px 0;
+
+      }
+    </style>
+    <title>{{sales.customer_name}} - invoice</title>
+  </head>
+  <body>
+    <div class="outer-container">
+      <div class="container">
+        <div class="row">
+          <div class="contents">
+            <div class="col-md-12">
+              <div class="heading">
+                <h2> INVOICE </h2>
+              </div>
+              <div class="from" style="text-align: right;">
+                <h3>APPLE CLUB, <br>
+                Ferry, Kigamboni - Dar es salaam. <br>
+                <br> +255 744 858 672 | +255 652 068 882
+                <br> Email: the appleclub2019@gmail.com
+                <br> Instagram: theappleclub_01
+                </h3>
+              </div>
+              <div class="to">
+                <h2>TO</h2>
+                <h3> &nbsp {{sales.customer_name}}</h3>
+                {% if sales.physical_address %}
+                  <h3>
+                    &nbsp  {{sales.physical_address}}
+                  </h3>
+                {% endif %}
+                {% if sales.postal_address %}
+                  <h3>
+                    &nbsp  {{sales.postal_address}}
+                  </h3>
+                {% endif %}
+                {% if sales.customer_TIN %}
+                  <h3>
+                    &nbsp TIN:  {{sales.customer_TIN}}
+                  </h3>
+                {% endif %}
+                {% if sales.customer_VRN %}
+                  <h3>
+                    &nbsp VRN:  {{sales.customer_VRN}}
+                  </h3>
+                {% endif %}
+              </div>
+              <hr>
+              <div class="contents">
+                  <h3>
+                    Total Number of Items: {{ sales.get_cart_items }}
+                  </h3>
+                  <h3>
+                    Total Amount to be payed (TZS): {{ sales.get_total_amount|floatformat:2|intcomma }}
+                  </h3>
+                  <h3>
+                    VAT (TZS): {{ sales.getVAT|floatformat:2|intcomma }}
+                  </h3>
+                  <h3>
+                    SELLER: {{ sales.seller.first_name }} {{ sales.seller.last_name}}
+                  </h3>
+                  <div class="particulars">
+                  <h4>
+                    Particulars
+                  </h4>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>PRODUCT NAME</th>
+                        <th>QUANTITY</th>
+                        <th>PRICE @ (TZS)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in sales.order %}
+                      <tr>
+                        <td>
+                          {{ item.product_name }}
+                        </td>
+                        <td>
+                          {{item.quantity}}
+                        </td>
+                        <td>
+                           {{ item.price|floatformat:2|intcomma }}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                      <tr style="border-top:1px solid #000000; border-bottom:1px solid #000000;">
+                        <td>Total Amount</td>
+                        <td> {{ sales.get_cart_items }} </td>
+                        <td> {{ sales.get_total_amount|floatformat:2|intcomma }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex">
+      <div class="sign">
+        <h3>Approved by</h3>
+        <p>.....................................</p>
+      </div>
+      <div class="seller">
+        <h3>Printed by</h3>
+        <p style="text-transform: uppercase;">{{ request.user.first_name }} {{ request.user.last_name }}</p>
+        <p>.....................................</p>
+      </div>
+    </div>
+    <footer class="footer">
+      <p>Copyright &copy COMPANY NAME 2020 |  All rights reserved</p>
+    </footer>
+
+  </body>
+</html>

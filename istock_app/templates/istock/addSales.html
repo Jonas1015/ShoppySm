@@ -1,0 +1,134 @@
+{% extends 'istock/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Add Sales{% endblock %}
+{% block content%}
+{% load humanize %}
+  <div class="outer_container">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="contents">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                          <span aria-hidden="">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {%  endif %}
+            <div class="heading mt-5">
+            <h3> ADD NEW SALES</h3>
+            </div>
+            <div class="d-flex">
+                <!-- <form class="form-inline mb-2 mt-4" method="GET">
+                  <div class="d-flex">
+                    <input class="col-8" type="text" name = "q" placeholder="Search Product">
+                    <h3 class="text-center">Select Products</h3>
+                    <button type="submit" class="btn btn-block col-4 text-white btnColor ml-2 ">Search</button>
+                  </div>
+              </form> -->
+              <div class="col-4 mt-4 w3-card">
+                <h3>Select Products</h3>
+                  <table id = "table-sale" class="table table-responsive table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                          <td> {{ product }} </td>
+                          <td> <a href="#" data-product = "{{ product.id }}" data-action = "add" class="btn btn-outline-secondary update-cart">Select</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+              </div>
+
+              <div class="col-8 ml-3 mt-4">
+                <div class="w3-card">
+                  {% if items %}
+                  <table>
+                    <tr>
+                      <th>
+                        <h5 class="mr-2">
+                          Items: {{ order.get_cart_items }}
+                        </h5>
+                      </th>
+                      <th>
+                        <h5 class="ml-2 mr-3">
+                          Amount: {{ order.get_total_amount|floatformat:2 }}
+                        </h5>
+                      </th>
+                      <th>
+                        <a href="{% url 'prepare_profoma_invoice' order.id %}" class="btn btn-outline-success ">Profoma</a>
+                        <a href="{% url 'prepare_invoice' order.id %}" class="btn btn-outline-info ml-3">Continue <i class="fa fa-arrow-right"></i></a>
+                      </th>
+                    </tr>
+                  </table>
+                  <div class="products">
+                    <table class="table table-striped table-hover mt-2">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Product title</th>
+                          <th>Price</th>
+                          <th>Quantity</th>
+                          <th>Total Item price</th>
+                        </tr>
+                      </thead>
+                      {% endif %}
+                      <tbody>
+                      {% for item in items %}
+                      <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ item.product.product_name }}</td>
+                        <td>{{ item.product.selling_price_per_each|floatformat:2|intcomma }}</td>
+                        <td>
+                          <a href="#" data-product = "{{ item.product.id }}" data-action = "remove" class="update-cart" ><i class="fas fa-minus small mr-2"></i></a>
+                          {{ item.quantity }}
+                          <a href="#" data-product = "{{ item.product.id }}" data-action = "add" class="update-cart"><i class="fas fa-plus small ml-2"></i></a>
+                        </td>
+                        <td>
+                          {{ item.totalAmount|floatformat:2 }}
+                          <a href="#" data-product = "{{ item.product.id }}" data-action = "delete" class="text-danger ml-3 update-cart ">
+                            <i class="fas fa-trash float-right"></i>
+                          </a>
+                        </td>
+                      </tr>
+                      {% empty %}
+                      <tr>
+                        <td colspan="">No products selected</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock%}
+
+{% block js %}
+<script type="text/javascript">
+// Data table
+  $(document).ready(function(){
+    $('#table-sale').DataTable({
+      // dom: 'B<"clear">lfrtip',
+      // button: {
+      //   name: 'primary',
+      //   button: ['copy', 'csv', 'excel', 'pdf']
+      // }
+    });
+  });
+</script>
+{% endblock js %}

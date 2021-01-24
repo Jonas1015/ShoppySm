@@ -1,0 +1,51 @@
+{% extends 'istock/base.html' %}
+{% block title %}Deposit Profit View{% endblock %}
+{% block content %}
+{% load humanize %}
+<div class="outer-container">
+<div class="container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-12">
+        <div class="heading">
+          <h3>TOTAL PROFIT & EXPENSES</h3>
+        </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <!-- <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button> -->
+                </div>
+            {% endfor %}
+        {%  endif %}
+          <div class="row">
+            <div class="col-md-12 cash-table">
+              <table class="table table-sm table-bordered table-hover">
+                <tr>
+                  <thead>
+                    <th>Total Gross Profit</th>
+                    <th>Total Expenses</th>
+                    <th>Total Net Profit before V.A.T</th>
+                    <th>V.A.T amount</th>
+                    <th>Total Net Profit After V.A.T</th>
+                  </thead>
+                </tr>
+                <tr>
+                  <td>{{ total_cash|floatformat:2|intcomma }}</td>
+                  <td>{{ expenses|floatformat:2|intcomma }}</td>
+                  <td>{{ cash|floatformat:2|intcomma }}</td>
+                  <td>{{ vat|floatformat:2|intcomma }}</td>
+                  <td>{{ net_cash|floatformat:2|intcomma }}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}

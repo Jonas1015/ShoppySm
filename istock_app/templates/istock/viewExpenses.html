@@ -1,0 +1,93 @@
+{% extends 'istock/base.html' %}
+{% block title %}Expenses{% endblock %}
+{% block content %}
+{% load humanize %}
+<div class="outer-container">
+<div class="container">
+  <div class="row">
+    <div class="contents">
+      <div class="col-md-12">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {%  endif %}
+        <div class="heading">
+          <h3>EXPENSES</h3>
+        </div>
+        <a href="{% url 'add_expenses' %}"><button type="button" class="btn btn-outline-info mt-5" name="button">Add Expense</button></a>
+        {% if expenses %}
+          <!-- <form class="form-inline mt-5 ml-2 block" method="GET">
+            <div class="searchBar">
+              <input type="text" name = "q" placeholder="Search Expense">
+              <button type="submit" class="btn btn-primary btnColor mb-2">Search</button>
+            </div>
+        </form> -->
+        <div class="w3-card">
+
+        <table id="table-e" class="table table-sm table-bordered table-hover">
+          <thead>
+            <tr>
+                <!-- <thead class="thead-dark"> -->
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Expense</th>
+                  <th>Amount</th>
+                  <th>Description</th>
+                  <th>Action</th>
+            </tr>
+          </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                  <td>{{forloop.counter}}</td>
+                  <td>{{expense.date | date:"F d Y" }}</td>
+                  <td>{{expense.expense}}</td>
+                  <td class="text-right">{{expense.amount|floatformat:2|intcomma}}</td>
+                  {% if expense.description %}
+                    <td>{{ expense.description }}</td>
+                  {% else %}
+                    <td>No description</td>
+                  {% endif %}
+                  <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                      <a href="{% url 'update_expense' expense.id %}" type="button" class="btn btn-outline-primary"><i class="fa fa-edit"></i></a>
+                      <a href="{% url 'delete_expense' expense.id %}" onclick="return confirm('Seriously Delete this expense!?');" type="button" class="btn btn-outline-danger"><i class="fa fa-trash"></i></a>
+                      <!-- <a href="#" target="_blank" type="button" class="btn btn-secondary"><i class="fa fa-download"></i> pdf</a> -->
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <h1>Ooopps!! No Expenses!</h1>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+// Data table
+  $(document).ready(function(){
+    $('#table-e').DataTable({
+      // dom: 'B<"clear">lfrtip',
+      // button: {
+      //   name: 'primary',
+      //   button: ['copy', 'csv', 'excel', 'pdf']
+      // }
+    });
+  });
+</script>
+{% endblock %}

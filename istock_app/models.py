@@ -2,14 +2,15 @@ from django.db import models
 
 # from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+from datetime import datetime
 
 
 User = get_user_model()
 
 # Create your models here.
 class products(models.Model):
-    code = models.CharField(max_length = 10, unique = True)
-    product_name = models.CharField(max_length = 200 )
+    code = models.CharField(max_length = 10, null=True, blank=True)
+    product_name = models.CharField(max_length = 200, unique=True)
     quantity = models.PositiveIntegerField(default = 0)
     buying_price_per_each = models.FloatField(default = 0)
     selling_price_per_each = models.FloatField(default = 0)
@@ -25,7 +26,7 @@ class products(models.Model):
 
 class sales(models.Model):
     seller = models.ForeignKey(User, on_delete = models.SET_NULL, null=True, blank=True)
-    date_added = models.DateTimeField(auto_now_add = True, null=True)
+    date_added = models.DateTimeField(default = datetime.now(), null=True, blank=True)
     transaction_id = models.CharField(max_length = 200, null = True, blank = True)
     ordered = models.BooleanField(default = False, null = True)
     customer_name = models.CharField(max_length = 200, null = True, blank = True)
@@ -93,7 +94,7 @@ class OrderItem(models.Model):
 
     @property
     def totalAmount(self):
-        total = self.quantity * self.price
+        total = self.price*self.quantity
         return total
 
 
@@ -114,6 +115,8 @@ class Purchase(models.Model):
     def __str__(self):
         return self.product.product_name
 
+    def price_per_unit(self):
+        return self.total_price/self.quantity
 
 class Deposit(models.Model):
     first_date = models.DateField()

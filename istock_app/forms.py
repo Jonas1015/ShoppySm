@@ -25,11 +25,24 @@ class addSalesForm(forms.ModelForm):
             'VRN Number': 'customer_VRN',
         }
 
+class updateSalesForm(forms.ModelForm):
+    class Meta:
+        model = sales
+        fields = ['date_added','customer_name','physical_address', 'postal_address', 'customer_TIN', 'customer_VRN']
+
+        labels = {
+            'TIN Number': 'customer_TIN',
+            'VRN Number': 'customer_VRN',
+        }
+
+        widgets = {
+            'date_added': forms.DateInput(attrs = {'type': 'date'})
+        }
 
 class addPurchaseForm(forms.ModelForm):
     class Meta:
         model = Purchase
-        fields = ['product', 'quantity','total_price', 'date']
+        fields = ['quantity','total_price', 'date']
 
         widgets = {
             'date': forms.DateInput(attrs = {'type': 'date'})

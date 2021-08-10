@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+{% load humanize %}
+<html lang="en" dir="ltr">
+  <head>
+    <style>
+
+      .heading {
+        background: rgba(0, 130, 170, 0.7);
+        color: #ffffff;
+        padding: 10px 0 10px 0;
+        text-align: center;
+        font-size: 15px;
+      }
+      .to h3 {
+        margin-left: 5vw;
+      }
+      td {
+        text-align: center;
+        font-size: 12px;
+        padding-top: 5px;
+      }
+      td p {
+        text-align: center;
+        font-size: 12px;
+      }
+      .d-flex {
+        display: flex;
+      }
+      .d-flex .sign {
+        justify-content: flex-start;
+      }
+      .d-flex .seller {
+        justify-content: flex-end;
+      }
+      .head {
+        text-align: center
+      }
+      footer {
+        background: rgba(0, 130, 170, 0.7);
+        color: #ffffff;
+        text-align: center;
+        margin: 95vh 0 0 0;
+        padding: 50px 0 20px 0;
+
+      }
+    </style>
+    <title>Sales Report</title>
+  </head>
+  <body>
+    <div class="outer-container">
+      <div class="container">
+        <div class="row">
+          <div class="contents">
+            <div class="col-md-12">
+              <div class="heading">
+                <h2> GENERAL REPORT | {{ day| date:"F d Y" }}</h2>
+              </div>
+              <div class="from" style="text-align: right;">
+                <h3>Mwinyi Stores, <br>
+                  Ferry, Kigamboni - Dar es salaam. <br>
+                  <br> +255 625 488 971 | +255 713 235 960
+                  <br> Email: mwinyifuady@gmail.com
+                  <br> Instagram: latifafarahahmed
+                </h3>
+              </div>
+              <hr>
+              <div class="contents">
+                  <h3>
+                    Total Sales: {{sales_amount|floatformat:2|intcomma }}
+                  </h3>
+                  <h3>
+                    Total Purchases (TZS): {{purchases_amount|floatformat:2|intcomma }}
+                  </h3>
+                  <h3>
+                    Total Expenses (TZS): {{expenses_amount|floatformat:2|intcomma }}
+                  </h3>
+                  <h3>
+                    Total Profit (TZS): {{ profit|floatformat:2|intcomma }}
+                  </h3>
+                  
+                  {% if sales %}
+                  <table>
+                    <div class="head">
+                      <strong>SALES</strong>
+                    </div>
+                      <tr>
+                        <!-- <thead class="thead-dark"> -->
+                        <thead>
+                          <th>Date Sold</th>
+                          <th>Inv. Code</th>
+                          <th>Customer Name</th>
+                          <th>Order particulars</th>
+                          <th>Sold By</th>
+                          <th> Total Quantity Sold</th>
+                          <th>Total Selling Price</th>
+                        </thead>
+                      </tr>
+                      <tbody>
+                        {% for sale in sales %}
+                        <tr>
+                          <td>{{sale.date_added|date:"F d Y"}}</td>
+                          <td>{{sale.id}}</td>
+                          <td>{{sale.customer_name}}</td>
+                          <td>{% for item in sale.order %}
+                            {{item.product_name}} - {{ item.quantity }} <br>
+                            {% endfor %}
+                          </td>
+                          <td>{{ sale.seller.first_name }} {{ sale.seller.last_name}}</td>
+                          <td>{{sale.get_cart_items }}</td>
+                          <td>{{sale.get_total_amount|floatformat:2|intcomma }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                          <td colspan="6" style="text-align: left"><strong>Total Amount:</strong></td>
+                          <td style="text-align: right"><strong>{{ sales_amount|floatformat:2|intcomma }}</strong></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    {% endif %}
+                    {% if purchases %}
+                    <hr>
+                    <table>
+                      <div class="head">
+                        <strong>PURCHASES</strong>
+                      </div>
+                      <tr>
+                        <!-- <thead class="thead-dark"> -->
+                        <thead>
+                          <th>Date Purchased</th>
+                          <th>Product Purchased</th>
+                          <th> Total Quantity</th>
+                          <th>Total Price</th>
+                        </thead>
+                      </tr>
+                      <tbody>
+                          {% for purchase in purchases %}
+                          <tr>
+                            <td>{{purchase.date|date:"F d Y"}}</td>
+                            <td>{{purchase.product_name}}<br>
+                            <td>{{purchase.quantity}}</td>
+                            <td style="text-align: right">{{ purchase.total_price }}</td>
+                          </tr>
+                          {% endfor %}
+                          <tr>
+                            <td colspan="3" style="text-align: left"><strong>Total Amount:</strong></td>
+                            <td style="text-align: right"><strong>{{ purchases_amount|floatformat:2|intcomma }}</strong></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      {% endif %}
+                  {% if expenses %}
+                  <hr>
+                  <table>
+                    <div class="head">
+                      <strong>EXPENSES</strong>
+                    </div>
+                    <tr>
+                    <thead>
+                      <th>Date</th>
+                      <th>Expense</th>
+                      <th class="text-center">Description</th>
+                      <th class="text-center">Amount</th>
+                    </thead>
+                    </tr>
+                    <tbody>
+                    {% for expense in expenses %}
+                      <tr>
+                        <td>{{expense.date|date:"F d Y"}}</td>
+                        <td>{{expense.expense}}<br>
+                        <td class="text-center">
+                          {% if expense.description %}
+                            {{expense.description}}
+                          {% else %}
+                            -
+                          {% endif %}
+                        </td>
+                        <td style="text-align: right">{{ expense.amount }}</td>
+                      </tr>
+                      {% endfor %}
+                      <tr>
+                        <td colspan="3" style="text-align: left"><strong>Total Amount:</strong></td>
+                        <td style="text-align: right"><strong>{{ expenses_amount|floatformat:2|intcomma }}</strong></td>
+                      </tr>
+                      </tbody>
+                    </table>
+                    {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="d-flex">
+      <div class="sign">
+        <h3>Approved by</h3>
+        <p>.....................................</p>
+      </div>
+      <div class="seller">
+        <h3>Printed by</h3>
+        <p style="text-transform: uppercase;">{{ user.first_name }} {{ user.last_name }}</p>
+        <p>.....................................</p>
+      </div>
+    </div>
+    <footer class="footer pb-3 pt-3 text-center">
+       <p>Copyright &copy ShoppySm Developer <script>document.write(new Date().getFullYear());</script>. All rights reserved</p>
+    </footer>
+
+  </body>
+</html>

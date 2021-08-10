@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 import locale
 from django.contrib.auth.decorators import login_required
 from accounts.decorators import *
+from django.db.models import Sum, FloatField
 
 
 # Create your views here.
@@ -29,82 +30,116 @@ def home(request):
     return render(request, myTemplate, context)
 
 @admin_login_required
+# async def dashboard(request):
 def dashboard(request):
-    products_data  = products.objects.all()
-    products_number = products_data.count()
-
+    # Create this time object
     now = datetime.now()
+
+    # Grab current year and month
     this_month = datetime.now().month
     this_year = datetime.now().year
 
-    purchases_data  = Purchase.objects.filter(date__year = this_year, date__month = this_month)
-    sales_data  = sales.objects.filter(date_added__year = this_year, date_added__month = this_month)
-    expenses_data  = Expenses.objects.filter(date__year = this_year, date__month = this_month)
-
-    expenses_amount = sum([expense.amount for expense in expenses_data])
-    purchases_amount = sum([purchase.totalprice for purchase in purchases_data])
-
-
-    sales_amount = sum([sale.get_total_amount for sale in sales_data])
-    total_buying_price = sum([sale.total_buying_price for sale in sales_data])
-    gross_profit = sales_amount - total_buying_price
-    net_profit = gross_profit - expenses_amount
-
+    # Get data for the currect year from the database
     sales_year  = sales.objects.filter(date_added__year = this_year)
     expenses_year  = Expenses.objects.filter(date__year = this_year)
     purchases_year  = Purchase.objects.filter(date__year = this_year)
 
-    months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ]
+    # Filter the data for current month
+    purchases_data  = purchases_year.filter(date__month = this_month)
+    sales_data  = sales_year.filter(date_added__month = this_month)
+    expenses_data  = expenses_year.filter(date__month = this_month)
+
+
+    # sum amount of money for the month
+    expenses_amount = expenses_data.aggregate(amount=Sum('amount'))
+    purchases_amount = purchases_data.aggregate(price=Sum('total_price'))
+    sales_amount = sales_data.aggregate(selling_price=Sum(F('orderitem__price')*F('orderitem__quantity'), output_field = FloatField()))
+    total_buying_price = sales_data.aggregate(buying_price=Sum(F('orderitem__buying_price')*F('orderitem__quantity'), output_field = FloatField()))
+
+    # print(total_buying_price['buying_price'])
+    # Check if dictionaries produced contain data this process will be repeated in some next lines of code
+    if not expenses_amount['amount']:
+        expenses_amount['amount'] = 0
+
+    if not purchases_amount['price']:
+        purchases_amount['price'] = 0
+
+    if not sales_amount['selling_price']:
+        sales_amount['selling_price'] = 0
+
+    if not total_buying_price['buying_price']:
+        total_buying_price['buying_price'] = 0
+
+    # Calculate gross profit
+    gross_profit = sales_amount['selling_price'] - total_buying_price['buying_price']
+    net_profit = gross_profit - expenses_amount['amount']
+
+    # Feed all the months in the list
+    months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+# Calculate total amounts for every attribute we need
 
     # Expenses
     expenses_count = []
-    for i in range(1,12):
+    for i in range(1,len(months)):
         expenses_amount_monthly = 0
         expenses_monthly = expenses_year.filter(date__month = i)
-        for expense in expenses_monthly:
-            expenses_amount_monthly = sum([expense.amount for expense in expenses_monthly])
-        expenses_count.append(expenses_amount_monthly)
+        expenses_amount_monthly = expenses_monthly.aggregate(amount=Sum('amount'))
+        if not expenses_amount_monthly['amount']:
+            expenses_amount_monthly['amount'] = 0
+        expenses_count.append(expenses_amount_monthly['amount'])
 
     # Sales
     sales_count = []
     for i in range(1,13):
         sales_amount_monthly = 0
-        sales_monthly = (sales_year.filter(date_added__month = i))
-        for sale in sales_monthly:
-            sales_amount_monthly = sum([sale.get_total_amount for sale in sales_monthly])
-        sales_count.append(sales_amount_monthly)
+        sales_monthly = sales_year.filter(date_added__month = i)
+        sales_amount_monthly = sales_monthly.aggregate(selling_price=Sum(F('orderitem__price')*F('orderitem__quantity'), output_field = FloatField()))
+        if not sales_amount_monthly['selling_price']:
+            sales_amount_monthly['selling_price'] = 0
+        sales_count.append(sales_amount_monthly['selling_price'])
+
 
     # Purchases
     purchases_count = []
     for i in range(1,13):
-        purchases_amount_monthly = 0
-        purchases_monthly = (purchases_year.filter(date__month = i))
-        for purchase in purchases_monthly:
-            purchases_amount_monthly = sum([purchase.total_price for purchase in purchases_monthly])
-        purchases_count.append(purchases_amount_monthly)
+        purchases_monthly = purchases_year.filter(date__month = i)
+        purchases_amount_monthly = purchases_monthly.aggregate(amount=Sum('total_price'))
+        if not purchases_amount_monthly['amount']:
+            purchases_amount_monthly['amount'] = 0
+        purchases_count.append(purchases_amount_monthly['amount'])
 
     # Profit
     profit_count = []
-    for i in range(1,13):
-        profit_amount_monthly = 0
-        sales_monthly = (sales_year.filter(date_added__month = i))
-        expenses_monthly = expenses_year.filter(date__month = i)
-        profit_amount_monthly = 0
-        for sale in sales_monthly:
-            sales_amount_monthly = sum([sale.get_total_amount for sale in sales_monthly])
-            total_buying_price_monthly = sum([sale.total_buying_price for sale in sales_monthly])
-            expenses_amount_monthly = sum([expense.amount for expense in expenses_monthly])
-            gross_profit = sales_amount_monthly - total_buying_price_monthly
-            profit_amount_monthly = gross_profit - expenses_amount_monthly
+    for i in range (1,len(sales_count)):
+        sales_monthly = sales_year.filter(date_added__month=i)
+        total_buying_price_monthly = sales_monthly.aggregate(buying_price = Sum(F('orderitem__buying_price')*F('orderitem__quantity'), output_field = FloatField()))
+
+        if not sales_count[i-1]:
+            sales_count[i-1] = 0
+        if not total_buying_price_monthly['buying_price']:
+            total_buying_price_monthly['buying_price'] = 0
+        gross_profit = sales_count[i-1] - total_buying_price_monthly['buying_price']
+
+
+        expenses_monthly = expenses_year.filter(date__month=i)
+        expenses_amount_monthly = expenses_monthly.aggregate(amount=Sum('amount'))
+
+        if not expenses_amount_monthly['amount']:
+            expenses_amount_monthly['amount'] = 0
+        profit_amount_monthly = gross_profit - expenses_amount_monthly['amount']
+        # print("Gross Profit: ",gross_profit)
+        # print("Net Profit: ",profit_amount_monthly)
+
         profit_count.append(profit_amount_monthly)
+
 
     myTemplate = 'istock/dashboard.html'
     context = {
-        'purchases_amount': purchases_amount,
-        'sales_amount': sales_amount,
-        'expenses_amount': expenses_amount,
+        'purchases_amount': purchases_amount['price'],
+        'sales_amount': sales_amount['selling_price'],
+        'expenses_amount': expenses_amount['amount'],
         'profit': net_profit,
-        'products_number': products_number,
         'sales_year': sales_year,
         'sales_count': sales_count,
         'expenses_count': expenses_count,
@@ -230,25 +265,83 @@ def delete_product(request, id):
 # =======================================Sales Functions=======================================
 @login_required
 def all_sales(request):
-    orders = sales.objects.all()
-    for order in orders:
-        if order.get_cart_items <= 0 or order.profoma == True:
+    orders = sales.objects.filter(profoma=True).delete()
+    for order in sales.objects.all():
+        if not order.order:
             order.delete()
 
-    all_sales = sales.objects.all().order_by('-id')
 
-    query = request.GET.get("q")
-    if query:
-        all_sales = sales.objects.filter(Q(id__icontains = query)).order_by('-id')
-        if not all_sales:
-            all_sales = products.objects.all().order_by('-id')
-            messages.warning(request,f'Invalid Search!')
+    # Grab current year, month and day
+    this_month = datetime.now().month
+    this_year = datetime.now().year
+    this_day = datetime.now().day
+    sales_data  = sales.objects.filter(
+        date_added__year = this_year,
+        date_added__month = this_month,
+        date_added__day = this_day
+    )
+
+    # query = request.GET.get("q")
+    # if query:
+    #     sales_data = sales_data.filter(Q(id__icontains = query)).order_by('-id')
+    #     if not all_sales:
+    #         sales_data = sales_data.order_by('-id')
+    #         messages.warning(request,f'Invalid Search!')
     context = {
-        'mySales': all_sales
+        'mySales': sales_data,
     }
     myTemplate = 'istock/sales.html'
     return render (request, myTemplate, context)
 
+def all_time_sales(request):
+        orders = sales.objects.filter(profoma=True).delete()
+
+        this_year = datetime.now().year
+        this_month = datetime.now().month
+        this_day = datetime.now().day
+
+        sales_data  = sales.objects.filter(
+            date_added__year = this_year,
+            date_added__month = this_month
+        )
+
+        query = request.GET.get("q")
+        month = this_month
+        months = {
+            'January': 1,
+            'February': 2,
+            'March': 3,
+            'April': 4,
+            'May': 5,
+            'June': 6,
+            'July': 7,
+            'August': 8,
+            'September': 9,
+            'October': 10,
+            'November': 11,
+            'December': 12
+        }
+
+
+        if query:
+            for key in months.keys():
+                if query.capitalize() == key:
+                    month = months[key]
+            sales_data = sales.objects.filter(
+                    date_added__year = this_year,
+                    date_added__month = month,
+            ).order_by('date_added')
+            if not sales_data:
+                sales_data  = sales.objects.filter(
+                    date_added__year = this_year,
+                    date_added__month = this_month
+                ).order_by('date_added')
+                messages.warning(request,f'No data found')
+        context = {
+            'mySales': sales_data,
+        }
+        myTemplate = 'istock/allSales.html'
+        return render (request, myTemplate, context)
 # def sell(request):
 #     form = addSalesForm()
 
@@ -256,23 +349,18 @@ def all_sales(request):
 @shopkeeper_login_required
 def add_sales(request):
     all_products = products.objects.all()
-    query = request.GET.get("q")
-    if query:
-        all_products = all_products.filter(Q(product_name__icontains = query) | Q(code__icontains = query))
-        if not all_products:
-            messages.warning(request, f'No results found!!')
-            all_products = products.objects.all()
+    # query = request.GET.get("q")
+    # if query:
+    #     all_products = all_products.filter(Q(product_name__icontains = query) | Q(code__icontains = query))
+    #     if not all_products:
+    #         messages.warning(request, f'No results found!!')
+    #         all_products = products.objects.all()
 
 
     # cart
     order, created = sales.objects.get_or_create(seller = request.user, ordered = False)
     items = order.orderitem_set.all()
     # items = []
-
-    orders = sales.objects.all()
-    for order in orders:
-        if order.get_cart_items <= 0 or order.profoma:
-            order.delete()
 
 
     context = {
@@ -327,13 +415,20 @@ def updateItem(request):
 def update_sales(request, id):
     instance = get_object_or_404(sales, pk = id)
 
-    form = addSalesForm(request.POST or None, instance = instance)
+    form = updateSalesForm(request.POST or None, instance = instance)
 
     order = instance.orderitem_set.all()
     if request.method == 'POST':
         for item in order:
             if request.POST.get(item.product.product_name):
+
+                id_name = str(item.product.id)
+
+
                 quantity_update = int(request.POST.get(item.product.product_name))
+                price_update = float(request.POST.get(id_name))
+
+
 
                 product = get_object_or_404(products, pk = item.product.id)
 
@@ -348,22 +443,27 @@ def update_sales(request, id):
                 product.save()
 
                 item.quantity = quantity_update
+                item.price = price_update
                 item.save()
 
                 decreased = decrease_product_function(item.product.id, quantity_update)
                 print('After Decreasing: ',decreased)
                 product.quantity = decreased
                 product.save()
+
+
                 product.save()
             else:
-                messages.warning(request, f'Sales wasn\'t updated!')
+                messages.warning(request, f'Sales wasn\'t updaed!')
                 return redirect ('all_sales')
 
         if form.is_valid():
-            messages.success(request, f'Sales has been made successifully!')
+            form.save()
+
+            messages.success(request, f'Sales has been saved successifully!')
 
             # messages.success(request, f'Sales has been updated successifully!')
-            form.save()
+
             return redirect ('all_sales')
     context = {
         'form': form,
@@ -426,10 +526,7 @@ def prepareProfomaInvoice(request, id):
 
     orderItems = order.orderitem_set.all()
     # Delete all orders that have nothing
-    orders = sales.objects.all()
-    for ordery in orders:
-        if ordery.get_total_amount <= 0:
-            ordery.delete()
+
 
     form = addSalesForm(request.POST or None)
     myTemplate = 'istock/invoice/prepareInvoice.html'
@@ -539,13 +636,21 @@ def vatCalc():
 def priceApplied(request):
     all_products = products.objects.all()
     all_percentages = Percentages.objects.all()
+    percentages = sum([percentage.percent for percentage in all_percentages])
     for product in all_products:
-        percentages = sum([percentage.percent for percentage in all_percentages])
-        profit = (product.selling_price_per_each - product.buying_price_per_each)/product.buying_price_per_each * 100
+        profit = product.selling_price_per_each - product.buying_price_per_each
 
-        if product.buying_price_per_each == product.selling_price_per_each or product.selling_price_per_each == 0 or profit < percentages:
+        if product.product_name == "Masafi":
+            print("Profit percent:", profit_percent)
 
+        if profit <= 0:
+            buying_price_fraction = 0
+        else:
+            buying_price_fraction = profit/product.buying_price_per_each
 
+        profit_percent = buying_price_fraction * 100
+        if profit_percent < percentages:
+            print("Sanity check: Calculated")
             selling_price = (percentages/100)*product.buying_price_per_each + product.buying_price_per_each
             product.selling_price_per_each = selling_price
             product.save()
@@ -652,38 +757,65 @@ def cash(request):
 @shopkeeper_login_required
 def sales_report(request):
     if request.method == 'POST':
-        if request.POST.get('start_date') == "" or request.POST.get('end_date') == "":
-            messages.success(request, f'Please provide both start date and end date!')
-            return redirect('sales_report')
+        get_data = []
+        get_start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
+        if request.POST.get('end_date'):
+            get_end_date =  datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
+            if get_start_date > get_end_date:
+                messages.warning(request, f'End date cannot be before the start date!!')
+                return redirect('sales_report')
+            inclusive_day = timedelta(days = 1)
+            # inclusive_day = datetime.strptime("1", '%d')
+            end_date = get_end_date + inclusive_day
+            print("End date after plus day: ",end_date)
+
+            # get_data = sales.objects.filter(date_added__range = [ get_start_date, end_date]).order_by('date_added')
+            get_data = sales.objects.filter(
+                date_added__gte = get_start_date,
+                date_added__lte = get_end_date,
+            ).order_by('date_added')
+
         else:
-            get_start_date = datetime.strptime (request.POST.get('start_date'), '%Y-%m-%d')
-            get_end_date =  datetime.strptime (request.POST.get('end_date'), '%Y-%m-%d')
-                            # datetime.strptime (request.POST.get('appointment_date'), '%Y-%m-%d')
-            # ranged_data = time_calculator(get_start_date, get_end_date)
-            total_sales = 0
-            total_buying_price = 0
-            price_per_product = 0
-            totalCalc = []
-            get_data = sales.objects.filter(date_added__range = [ get_start_date, get_end_date])
-            for data in get_data:
-                total_sales += data.get_total_amount
-                items = data.order
-                for item in items:
-                    total_buying_price += item.buying_price * item.quantity
-            total_profit = total_sales - total_buying_price
-            vat = (18/100) * total_profit
-            net_profit = total_profit - vat
-            total_sales_number = get_data.count()
+            print(get_start_date)
+            get_end_date = get_start_date
+            get_data = sales.objects.filter(
+                date_added__year = get_start_date.year,
+                date_added__month = get_start_date.month,
+                date_added__day = get_start_date.day
+
+            )
+            print(get_data)
+
+
+        total_sales = get_data.aggregate(total_amount = Sum(F('orderitem__price')*F('orderitem__quantity'), output_field = FloatField()))
+        total_buying_price = get_data.aggregate(total_amount = Sum(F('orderitem__buying_price')*F('orderitem__quantity'), output_field = FloatField()))
+
+        if not total_sales['total_amount']:
+            total_sales['total_amount'] = 0
+        if not total_buying_price['total_amount']:
+            total_buying_price['total_amount'] = 0
+
+        # print(total_sales['total_amount']-total_buying_price['total_amount'])
+        # for data in get_data:
+        #     total_sales += data.get_total_amount
+        #     items = data.order
+        #     for item in items:
+        #         total_buying_price += item.buying_price * item.quantity
+        #    total_profit = total_sales - total_buying_price
+        total_profit = total_sales['total_amount']-total_buying_price['total_amount']
+        vat = (18/100) * total_profit
+        net_profit = total_profit - vat
+        total_sales_number = get_data.count()
         context = {
-        'sales': get_data,
-        'total_sales': total_sales,
-        'total_buying_price': total_buying_price,
-        'total_profit': total_profit,
-        'vat': vat,
-        'net_profit': net_profit,
-        'start_date': get_start_date,
-        'end_date': get_end_date,
-        'total_products': total_sales_number,
+            'sales': get_data,
+            'total_sales': total_sales['total_amount'],
+            'total_buying_price': total_buying_price['total_amount'],
+            'total_profit': total_profit,
+            'vat': vat,
+            'net_profit': net_profit,
+            'start_date': get_start_date,
+            'end_date': get_end_date,
+            'total_products': total_sales_number,
         }
         myTemplate = 'istock/salesReport.html'
         return render (request, myTemplate, context)
@@ -700,8 +832,8 @@ def all_purchases(request):
     query = request.GET.get("q")
     if query:
         get_purchases = Purchase.objects.filter(Q(date__icontains = query)).order_by('-id')
-        if not all_sales:
-            all_sales = Purchase.objects.objects.all().order_by('-id')
+        if not get_purchases:
+            get_purchases = Purchase.objects.objects.all().order_by('-id')
             messages.warning(request,f'Invalid Search!')
     context = {
         'purchases': get_purchases,
@@ -713,15 +845,16 @@ def all_purchases(request):
 @shopkeeper_login_required
 def add_purchase(request):
     form = addPurchaseForm()
+    products_list = products.objects.all().order_by('product_name')
     if request.method == 'POST':
         form = addPurchaseForm(request.POST or None)
-        get_name = int(request.POST.get('product'))
-        print(get_name)
+        get_name = request.POST.get('product')
+        # print(get_name)
         get_quantity = int(request.POST.get('quantity'))
         get_date = request.POST.get('date')
         get_total_price = request.POST.get('total_price')
         if form.is_valid():
-            get_product = get_object_or_404(products, pk = get_name)
+            get_product = get_object_or_404(products, product_name = get_name)
             after = get_quantity + get_product.quantity
             form = Purchase(
                 product = get_product,
@@ -734,12 +867,13 @@ def add_purchase(request):
             )
             form.save()
             increase_product_function(get_product.id, get_quantity)
-            calculate_buying_price(get_name, get_quantity, get_total_price)
+            # calculate_buying_price(get_name, get_quantity, get_total_price)
             messages.success(request, f'Purchase added successfully!')
             return redirect('add_purchase')
 
     context = {
-     'form': form
+     'form': form,
+     'products': products_list,
     }
     myTemplate = 'istock/addPurchases.html'
     return render(request, myTemplate, context)
@@ -753,7 +887,7 @@ def update_purchase(request, id):
     # quantity = roll_back_product_function(instance.id, instance.quantity)
 
     if request.method == 'POST':
-        get_name = int(request.POST.get('product_name'))
+        get_name = int(request.POST.get('product'))
         get_quantity = request.POST.get('quantity')
         get_total_price = request.POST.get('total_price')
         get_date = request.POST.get('date')
@@ -768,7 +902,7 @@ def update_purchase(request, id):
             filtered_object = Purchase.objects.filter(id = instance.id)
             form.save()
             increase_product_function(get_name, get_quantity)
-            calculate_buying_price(get_name, get_quantity, get_total_price)
+            # calculate_buying_price(get_name, get_quantity, get_total_price)
             messages.success(request, f'Purchase has been updated successifully!')
             return redirect ('all_purchases')
     context = {
@@ -800,22 +934,43 @@ def delete_purchase(request, id):
 @login_required
 def ranged_purchases(request):
     if request.method == 'POST':
-        if request.POST.get('start_date') == "" or request.POST.get('end_date') == "":
-            messages.success(request, f'Please provide both start date and end date!')
-            return redirect('sales_report')
+        get_data = []
+        get_start_date = datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
+        if request.POST.get('end_date'):
+            get_end_date =  datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
+            if get_start_date > get_end_date:
+                messages.warning(request, f'End date cannot be before the start date!!')
+                return redirect('sales_report')
+            inclusive_day = timedelta(days = 1)
+            # inclusive_day = datetime.strptime("1", '%d')
+            end_date = get_end_date + inclusive_day
+            print("End date after plus day: ",end_date)
+
+            # get_data = Purchase.objects.filter(date__range = [ get_start_date, end_date]).order_by('date')
+            get_data = Purchase.objects.filter(
+                date__gte = get_start_date,
+                date__lte = get_end_date,
+            ).order_by('date')
+
         else:
-            get_start_date = datetime.strptime (request.POST.get('start_date'), '%Y-%m-%d')
-            get_end_date =  datetime.strptime (request.POST.get('end_date'), '%Y-%m-%d')
+            print(get_start_date)
+            get_end_date = get_start_date
+            get_data = Purchase.objects.filter(
+                date__year = get_start_date.year,
+                date__month = get_start_date.month,
+                date__day = get_start_date.day
+            )
+            print(get_data)
 
 
-            total_price= 0
-            get_data = Purchase.objects.filter(date__range = [get_start_date, get_end_date])
-            for data in get_data:
-                total_price += data.total_price
-            total_purchases = get_data.count()
+        total_purchases_price = get_data.aggregate(total_price = Sum('total_price'))
+        total_purchases = get_data.count()
+        if not total_purchases_price['total_price']:
+            total_purchases_price['total_price'] = 0
+
         context = {
             'purchases': get_data,
-            'total_price': total_price,
+            'total_price': total_purchases_price,
             'start_date': get_start_date,
             'end_date': get_end_date,
             'total_purchases': total_purchases,
@@ -834,8 +989,17 @@ def actual_profit(request):
     if request.method == 'POST':
         get_start_date = datetime.date(datetime.strptime (request.POST.get('first_date'), '%Y-%m-%d'))
         get_end_date =  datetime.date(datetime.strptime (request.POST.get('last_date'), '%Y-%m-%d'))
-        other_expenses =  int(request.POST.get('expenses'))
-        get_data = sales.objects.filter(date_added__range = [get_start_date, get_end_date])
+        # other_expenses =  float(request.POST.get('expenses'))
+
+        inclusive_day = timedelta(days = 1)
+
+        end_date = get_end_date + inclusive_day
+
+        get_data = sales.objects.filter(date_added__range = [get_start_date, end_date])
+
+        expenses = Expenses.objects.filter(date__range = [get_start_date, end_date])
+
+        total_expenses =sum([expense.amount for expense in expenses])
         print('Sales obtained', get_data)
         total_sales = 0
         total_buying_price = 0
@@ -849,20 +1013,17 @@ def actual_profit(request):
         print(total_buying_price)
         print(total_sales)
         total_profit = total_sales - total_buying_price
-        actual_profit = total_profit - other_expenses
+        actual_profit = total_profit - total_expenses
         context = {
             'start_date': get_start_date,
             'end_date': get_end_date,
             'total_profit': total_profit,
-            'other_expenses': other_expenses,
+            'other_expenses': total_expenses,
             'actual_profit': actual_profit,
         }
         myTemplate = 'istock/profitView2.html'
         return render(request, myTemplate, context)
-    total_expenses =sum([expense.amount for expense in Expenses.objects.all()])
-    context = {
-    'expenses': total_expenses,
-    }
+    context = {}
     myTemplate = 'istock/profitView.html'
     return render(request, myTemplate, context)
 
@@ -882,8 +1043,13 @@ def deposit(request):
         print(actual_profit)
         print(reduced)
         print(bank)
-        get_data = Deposit.objects.filter(first_date__range = [ get_start_date, get_end_date])
-        get_data1 = Deposit.objects.filter(last_date__range = [ get_start_date, get_end_date])
+
+        inclusive_day = timedelta(days = 1)
+
+        end_date = get_end_date + inclusive_day
+
+        get_data = Deposit.objects.filter(first_date__range = [ get_start_date, end_date])
+        get_data1 = Deposit.objects.filter(last_date__range = [ get_start_date, end_date])
         if get_data or get_data1:
             messages.warning(request, f'Some dates are already deposited!')
             return redirect('actual_profit')
@@ -978,6 +1144,73 @@ def delete_percentage(request, id):
     messages.success(request, f'Percentage deleted successfull!')
     return redirect('percentages')
 
+
+# ============================ Daily reports ============================================
+
+def daily_reports(request):
+
+    if request.method == 'POST':
+        day = datetime.strptime (request.POST.get('date'), '%Y-%m-%d').date()
+        # yesterday = day - timedelta(days = 1)
+
+        get_sales = sales.objects.filter(
+            date_added__year = day.year,
+            date_added__month = day.month,
+            date_added__day = day.day
+        )
+        sales_amount = get_sales.aggregate(amount=Sum(F('orderitem__price')*F('orderitem__quantity'), output_field = FloatField()))
+
+        get_purchases = Purchase.objects.filter(
+            date__year = day.year,
+            date__month = day.month,
+            date__day = day.day,
+        )
+        purchases_amount = get_purchases.aggregate(amount=Sum('total_price'))
+
+        get_expenses = Expenses.objects.filter(
+            date__year = day.year,
+            date__month = day.month,
+            date__day = day.day,
+        )
+        expenses_amount = get_expenses.aggregate(amount=Sum('amount'))
+
+        # get_sales_yesterday = sales.objects.filter(date_added = yesterday)
+        # sales_amount_yesterday = get_sales_yesterday.aggregate(amount=Sum(F('orderitem__selling_price')*F('orderitem__quantity'), output_field = FloatField()))
+        #
+        # get_purchases_yesterday = Purchase.objects.filter(date = yesterday)
+        # purchases_amount_yesterday = get_purchases_yesterday.aggregate(amount=Sum('total_price'))
+        #
+        # get_expense_yesterdays = Expenses.objects.filter(date = yesterday)
+        # expenses_amount_yesterday = get_expenses_yesterday.aggregate(amount=Sum('amount'))
+
+
+        if not sales_amount['amount']:
+            sales_amount['amount'] = 0
+
+        if not purchases_amount['amount']:
+            purchases_amount['amount'] = 0
+
+        if not expenses_amount['amount']:
+            expenses_amount['amount'] = 0
+
+
+        profit = sales_amount['amount'] - expenses_amount['amount']
+        myTemplate = 'istock/dailyReports.html'
+        context = {
+            'sales': get_sales,
+            'purchases': get_purchases,
+            'expenses': get_expenses,
+            'sales_amount': sales_amount['amount'],
+            'purchases_amount': purchases_amount['amount'],
+            'expenses_amount': expenses_amount['amount'],
+            'profit': profit,
+            'day': day,
+        }
+        return render(request, myTemplate, context)
+
+    myTemplate = 'istock/dailyReports.html'
+    context = {}
+    return render(request, myTemplate, context)
 # =====================================FILES=====================================
 
 def render_to_pdf(template_src, context = {}):
@@ -990,6 +1223,81 @@ def render_to_pdf(template_src, context = {}):
     return None
 
 
+def daily_reports_PDF(request):
+        day = datetime.strptime (request.POST.get('date'), '%Y-%m-%d').date()
+        # yesterday = day - timedelta(days = 1)
+
+        get_sales = sales.objects.filter(
+            date_added__year = day.year,
+            date_added__month = day.month,
+            date_added__day = day.day,
+        )
+        sales_amount = get_sales.aggregate(amount=Sum(F('orderitem__price')*F('orderitem__quantity'), output_field = FloatField()))
+
+        get_purchases = Purchase.objects.filter(
+            date__year = day.year,
+            date__month = day.month,
+            date__day = day.day,
+        )
+        purchases_amount = get_purchases.aggregate(amount=Sum('total_price'))
+
+        get_expenses = Expenses.objects.filter(
+            date__year = day.year,
+            date__month = day.month,
+            date__day = day.day,
+        )
+        expenses_amount = get_expenses.aggregate(amount=Sum('amount'))
+
+        # get_sales_yesterday = sales.objects.filter(date_added = yesterday)
+        # sales_amount_yesterday = get_sales_yesterday.aggregate(amount=Sum(F('orderitem__selling_price')*F('orderitem__quantity'), output_field = FloatField()))
+        #
+        # get_purchases_yesterday = Purchase.objects.filter(date = yesterday)
+        # purchases_amount_yesterday = get_purchases_yesterday.aggregate(amount=Sum('total_price'))
+        #
+        # get_expense_yesterdays = Expenses.objects.filter(date = yesterday)
+        # expenses_amount_yesterday = get_expenses_yesterday.aggregate(amount=Sum('amount'))
+
+
+        if not sales_amount['amount']:
+            sales_amount['amount'] = 0
+
+        if not purchases_amount['amount']:
+            purchases_amount['amount'] = 0
+
+        if not expenses_amount['amount']:
+            expenses_amount['amount'] = 0
+
+
+        profit = sales_amount['amount'] - expenses_amount['amount']
+        myTemplate = 'istock/dailyReports.html'
+        context = {
+            'sales': get_sales,
+            'purchases': get_purchases,
+            'expenses': get_expenses,
+            'sales_amount': sales_amount['amount'],
+            'purchases_amount': purchases_amount['amount'],
+            'expenses_amount': expenses_amount['amount'],
+            'profit': profit,
+            'day': day,
+            'user': request.user
+        }
+
+        myTemplate = 'istock/invoice/daily_report.html'
+
+        pdf = render_to_pdf(myTemplate, context)
+        if pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            filename = f'{day} General Report.pdf'
+            content = f"attachment; filename = {filename} "
+            response['Content-Disposition'] = content
+            if response:
+                return response
+            else:
+                return HttpResponse('Not found')
+
+
+
+
 def invoicePDF(request):
     if request.method == 'POST':
         order_id = request.POST.get('order')
@@ -1000,13 +1308,11 @@ def invoicePDF(request):
         order.ordered = True
         order.save()
 
-        orders = sales.objects.all()
-        for order in orders:
-            if order.get_cart_items <= 0:
-                order.delete()
+        orders = sales.objects.filter(profoma = True).delete()
         myTemplate = 'istock/invoice/invoice.html'
         context = {
             'sales': order,
+            'user': request.user,
         }
         pdf = render_to_pdf(myTemplate, context)
         # if pdf:
@@ -1028,6 +1334,7 @@ def reprintInvoicePDF(request, id):
         myTemplate = 'istock/invoice/invoice.html'
         context = {
             'sales': order,
+            'user': request.user,
         }
         pdf = render_to_pdf(myTemplate, context)
         if pdf:
@@ -1051,18 +1358,21 @@ def profomaInvoicePDF(request, id):
         customer_VRN = request.POST.get('customer_VRN')
 
 
-        # order = sales.objects.get(id = order_id)
-        order.customer_name = customer_name
-        order.save()
-        order.physical_address = physical_address
-        order.save()
-        order.postal_address = postal_address
-        order.save()
-        order.customer_TIN = customer_TIN
-        order.save()
-        order.customer_VRN = customer_VRN
-        order.save()
-
+        # # order = sales.objects.get(id = order_id)
+        # order.customer_name = customer_name
+        # order.save()
+        # order.physical_address = physical_address
+        # order.save()
+        # order.postal_address = postal_address
+        # order.save()
+        # order.customer_TIN = customer_TIN
+        # order.save()
+        # order.customer_VRN = customer_VRN
+        # order.save()
+        # order.customer_VRN = customer_VRN
+        # order.save()
+        # order.customer_VRN = customer_VRN
+        # order.save()
 
         form = addSalesForm(request.POST or None)
 
@@ -1075,21 +1385,23 @@ def profomaInvoicePDF(request, id):
         for item in orderItems:
             print('Before ',item.quantity)
             if request.POST.get(item.product.product_name):
+                id_name = str(item.product.id)
+
                 quantity_update = int(request.POST.get(item.product.product_name))
+                price_update = float(request.POST.get(id_name))
+
                 item.quantity = quantity_update
+                item.price = price_update
                 item.save()
                 print('After ',item.quantity)
 
         # order = get_object_or_404(sales, pk=id)
-        orders = sales.objects.all()
-        for ordery in orders:
-            if ordery.get_cart_items <= 0:
-                ordery.delete()
-
+        # orders = sales.objects.all(profoma = True).delete()
 
         myTemplate = 'istock/invoice/profomaInvoice.html'
         context = {
             'sales': order,
+            'user': request.user,
         }
         pdf = render_to_pdf(myTemplate, context)
         # if pdf:
@@ -1110,27 +1422,34 @@ def salesReportPDF(request):
         if request.method == 'POST':
             get_start_date = datetime.strptime (request.POST.get('start_date'), '%Y-%m-%d')
             get_end_date =  datetime.strptime (request.POST.get('end_date'), '%Y-%m-%d')
-                            # datetime.strptime (request.POST.get('appointment_date'), '%Y-%m-%d')
-            # ranged_data = time_calculator(get_start_date, get_end_date)
-            total_sales = 0
-            total_buying_price = 0
-            price_per_product = 0
-            totalCalc = []
-            get_data = sales.objects.filter(date_added__range = [ get_start_date, get_end_date])
-            for data in get_data:
-                total_sales += data.get_total_amount
-                items = data.order
-                for item in items:
-                    total_buying_price += item.product.buying_price_per_each * item.quantity
-            total_profit = total_sales - total_buying_price
+
+
+            inclusive_day = timedelta(days = 1)
+
+            end_date = get_end_date + inclusive_day
+
+            get_data = sales.objects.filter(
+                date_added__gte = get_start_date,
+                date_added__lte = get_end_date,
+            ).order_by('date_added')
+
+            total_sales = get_data.aggregate(total_amount = Sum(F('orderitem__price')*F('orderitem__quantity'), output_field = FloatField()))
+            total_buying_price = get_data.aggregate(total_amount = Sum(F('orderitem__buying_price')*F('orderitem__quantity'), output_field = FloatField()))
+
+            if not total_sales['total_amount']:
+                total_sales['total_amount'] = 0
+            if not total_buying_price['total_amount']:
+                total_buying_price['total_amount'] = 0
+
+            total_profit = total_sales['total_amount'] - total_buying_price['total_amount']
             vat = (18/100) * total_profit
             net_profit = total_profit - vat
             total_sales_number = get_data.count()
 
             context = {
             'sales': get_data,
-            'total_sales': total_sales,
-            'total_buying_price': total_buying_price,
+            'total_sales': total_sales['total_amount'],
+            'total_buying_price': total_buying_price['total_amount'],
             'total_profit': total_profit,
             'vat': vat,
             'net_profit': net_profit,

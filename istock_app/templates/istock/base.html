@@ -69,7 +69,9 @@
                     <div class="w3-dropdown-content w3-bar-block navback">
                     <a href="{% url 'add_sales' %} " class="w3-bar-item ">Make New</a>
                     <a href=" {% url 'all_sales' %}" class="w3-bar-item ">View </a>
-                    <a href=" {% url 'actual_profit' %}" class="w3-bar-item "> Profit View </a>
+                    {% if request.user.is_admin %}
+		    <a href=" {% url 'actual_profit' %}" class="w3-bar-item "> Profit View </a>
+		    {% endif %}
                     </div>
                   </li>
                 </div>
@@ -83,6 +85,7 @@
                     </div>
                   </li>
                 </div>
+		{% if user.is_admin %}
                 <div class="w3-dropdown-hover">
                   <li class="nav-item">
                     <a  class=" nav-link " href="#">Deposits</a>
@@ -92,7 +95,7 @@
                     </div>
                   </li>
                 </div>
-                {% if user.is_admin %}
+
                 <div class="w3-dropdown-hover">
                   <li class="nav-item">
                     <a  class=" nav-link " href="#">Percentages</a>
@@ -103,6 +106,9 @@
                   </li>
                 </div>
                 {% endif %}
+                <li class="nav-item">
+                  <a class="nav-link " href="{% url 'daily-reports' %}">Daily Reports <span class="sr-only">(current)</span></a>
+                </li>
             </ul>
             <div class="w3-dropdown-hover">
                 <a class="nav-link settings"><i class="fa fa-cogs mr-3"></i>Settings</a>
@@ -117,7 +123,7 @@
           {% if request.user.is_admin %}
           <a href="{% url 'dashboard' %}" class="w3-bar-item btn"><i class="fa fa-chart-bar mr-3"></i>Dashboard</a>
           {% endif %}
-          <a href="{% url 'quick-links' %}" class="w3-bar-item btn"><i class="fa fa-motorcycle mr-3"></i>Quick Links</a>
+          <a href="{% url 'quick-links' %}" class="w3-bar-item btn"><i class="fa fa-wind mr-3"></i>Quick Links</a>
           <a class="w3-bar-item btn" onclick="myAccFunc()">
           <i class="fa fa-plus mr-3"></i>Add New</a>
 
@@ -159,8 +165,8 @@
 
           {% block content %}{% endblock %}
 
-          <footer class="footer pb-3 pt-3 text-center">
-            <p>Copyright &copy ShoppySm Developer <script>document.write(new Date().getFullYear());</script>. All rights reserved</p>
+          <footer class="footer mt-5 text-center">
+            <p>Copyright &copy <a href="#">ShoppySm Developer</a> <script>document.write(new Date().getFullYear());</script>. All rights reserved</p>
           </footer>
         </div>
 

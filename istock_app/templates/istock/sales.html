@@ -1,5 +1,5 @@
 {% extends 'istock/base.html' %}
-{% block title %}All Sales{% endblock %}
+{% block title %}Sales Today{% endblock %}
 {% load humanize %}
 {% block content %}
 <div class="outer-container">
@@ -18,18 +18,19 @@
               {% endfor %}
           {%  endif %}
           <div class="heading sales-heading">
-            <h3>SALES LIST</h3>
+            <h3>SALES LIST TODAY</h3>
           </div>
           {% if mySales %}
             <!-- <form class="form-inline mt-5 ml-2 block" method="GET">
               <div class="searchBar">
-                <input type="text" name = "q" placeholder="Search Sales">
+                <input type="date" name = "q" placeholder="Search Sales">
                 <button type="submit" class="btn text-white btnColor">Search</button>
               </div>
             </form> -->
             <div class="sales-table mt-2">
-            <a href="{% url 'sales_report' %}" class="btn btn-outline-success mt-3">View By Date</a>
+              <a href="{% url 'sales_report' %}" class="btn btn-outline-success mt-3">View By Date</a>
             {% endif %}
+            <a href="{% url 'all_time_sales' %}" class="btn btn-outline-secondary mt-3">All Sales</a>
             <a href="{% url 'add_sales' %}" class="btn btn-outline-info mt-3">Make New Sales</a>
             {% if mySales %}
             <div class="w3-card mt-3 ">
@@ -57,7 +58,7 @@
                     <td>{% for item in sale.order %} {{item.product_name}} - {{ item.quantity }} <br> {% endfor %}</td>
                     <td class="w3-hide-small">{{sale.get_cart_items}}</td>
                     <td class="w3-hide-small">{{sale.get_total_amount|floatformat:2|intcomma }}</td>
-                    <td>{{sale.seller}}</td>
+                    <td>{{sale.seller.first_name}}</td>
                     <td>
                         <div class="btn-group" role="group" aria-label="Basic example">
                         <a href="{% url 'update_sales' sale.id %}" type="button" class="btn btn-outline-primary"><i class="fa fa-edit"></i></a>
@@ -91,7 +92,7 @@
 // Data table
   $(document).ready(function(){
     $('#table-s').DataTable({
-      // dom: 'B<"clear">lfrtip',
+      dom: 'B<"clear">lfrtip',
       button: {
         name: 'primary',
         button: ['copy', 'csv', 'excel', 'pdf']

@@ -5,6 +5,7 @@ urlpatterns = [
     # =================================Products=================================
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('daily-reports/', views.daily_reports, name='daily-reports'),
     path('quick-links/', views.quick_links, name='quick-links'),
     path('all/products/', views.all_products, name='all_products'),
     path('Add/product/', views.add_product, name='add_product'),
@@ -14,6 +15,7 @@ urlpatterns = [
 
     # =================================Sales====================================
     path('sales/', views.all_sales, name='all_sales'),
+    path('all-time/sales/', views.all_time_sales, name='all_time_sales'),
     path('Add/Sales/', views.add_sales, name='add_sales'),
     path('update_item/', views.updateItem, name='update_item'),
     path('Create/Invoice/<int:id>/Profoma', views.prepareProfomaInvoice, name='prepare_profoma_invoice'),
@@ -36,6 +38,8 @@ urlpatterns = [
     # path('export/excel/', views.export_xls, name='export_excel'),
     path('export/excel/', views.export_excel, name='export_excel'),
     path('pdf/<int:id>', views.pdf, name='pdf'),
+    path('daily-report-download/', views.daily_reports_PDF, name='daily-report-download'),
+
 
     # =======================Expenses ==========================================
     path('cash/', views.cash, name='cash'),

@@ -29,7 +29,7 @@
               <button type="submit" class="btn btn-primary btnColor mb-2">Search</button>
             </div>
         </form> -->
-        <div class="w3-card">
+        <div class="w3-card mt-3">
         <table id="table-p" class="table table-responsive table-bordered table-hover">
               <!-- <thead class="thead-dark"> -->
             <thead>
@@ -39,6 +39,7 @@
                   <th>Code</th>
                   <th>Product Name</th>
                   <th>Quantity</th>
+		              <th>Last Quantity</th>
                   <th>Price</th>
                   <th>Action</th>
             </tr>
@@ -48,10 +49,15 @@
                 <tr>
                   <!-- <td>{{forloop.counter}}</td> -->
                   <td>{{purchase.date | date:"F d Y" }}</td>
+		{% if purchase.product_name.code %}
                   <td>{{purchase.product_name.code}}</td>
+		{% else %}
+		  <td>No Code</td>
+		{% endif %}
                   <td>{{purchase.product_name}}</td>
                   <td>{{purchase.quantity}}</td>
-                  <td>{{purchase.total_price}}</td>
+                  <td>{{purchase.quantity_before }}</td>
+		  <td>{{purchase.total_price}}</td>
                   <td>
                     <div class="btn-group" role="group" aria-label="Basic example">
                       <a href="{% url 'update_purchase' purchase.id %}" type="button" class="btn btn-outline-primary"><i class="fa fa-edit"></i></a>
@@ -81,11 +87,11 @@
 // Data table
   $(document).ready(function(){
     $('#table-p').DataTable({
-      // dom: 'B<"clear">lfrtip',
-      // button: {
-      //   name: 'primary',
-      //   button: ['copy', 'csv', 'excel', 'pdf']
-      // }
+      	 dom: 'B<"clear">lfrtip',
+      	 button: {
+      	 name: 'primary',
+         button: ['copy', 'csv', 'excel', 'pdf']
+       }
     });
   });
 </script>

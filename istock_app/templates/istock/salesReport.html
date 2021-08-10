@@ -20,18 +20,20 @@
                 </div>
             {% endfor %}
         {%  endif %}
-        <form target="" method="post" class="mt-2">
+        <div class="alert alert-info show" role="alert">
+          Fill only the <strong>START DATE</strong> field if you need a single day records only!
+        </div>
+        <form target="" method="post" class="mt-5">
           {% csrf_token %}
-
                   <div id="div_id_end_date" class="form-group">
-                    <label for="id_start_date" class=" requiredField">
+                    <label for="id_start_date" class="requiredField">
                         Start Date <span class="asteriskField">*</span>
                     </label>
-                      <input type='date' name="start_date" id="id_start_date" class="form-control">
+                      <input type='date' name="start_date" id="id_start_date" class="form-control" required>
                   </div>
                 <div id="div_id_end_date" class="form-group">
-                  <label for="id_end_date" class=" requiredField">
-                      End Date<span class="asteriskField">*</span>
+                  <label for="id_end_date" <!--class=" requiredField"-->
+                      End Date<!--<span class="asteriskField">*</span>-->
                   </label>
                     <input  id="id_end_date" name="end_date" type="date" class="form-control">
                 </div>

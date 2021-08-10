@@ -20,9 +20,23 @@
             <div class="heading mt-5">
             <h3> ADD EXPENSES</h3>
             </div>
-            <form action="" method="post" class="mt-3">
+            <form action="" method="post" class="mt-3 w3-card pt-3 pb-4">
                 {% csrf_token %}
-                  {{ form | crispy}}
+                  <!-- {{ form | crispy}} -->
+                  <div class="col-md-12">
+                    {{ form.expense | as_crispy_field }}
+                  </div>
+                  <div class="d-flex">
+                    <div class="col-md-6">
+                      {{ form.amount | as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                      {{ form.date | as_crispy_field }}
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    {{ form.description | as_crispy_field }}
+                  </div>
                 <button class="btn btn-primary btn-block" type="submit" name="button">Save</button>
             </form>
           </div>

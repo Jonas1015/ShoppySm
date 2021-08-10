@@ -63,7 +63,7 @@
                           data: {
                               labels: [{% for month in months %}"{{ month }}",{% endfor %}],
                               datasets: [{
-                                  label: 'Number of sales per month',
+                                  label: 'Amount of sales per month',
                                   data: [{% for sale in sales_count %}"{{ sale }}",{% endfor %}],
                                   backgroundColor: [
                                       'rgba(255, 99, 132, 0.2)',
@@ -128,7 +128,7 @@
                         data: {
                             labels: [{% for month in months%} "{{ month }}", {% endfor%}],
                             datasets: [{
-                                label: '# of expenses per month',
+                                label: 'Amount of expenses per month',
                                 data: [{% for expense in expenses_count %} "{{ expense }}", {% endfor %}],
                                 backgroundColor: [
                                     'rgba(255, 99, 132, 0.2)',

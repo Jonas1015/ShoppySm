@@ -28,7 +28,7 @@
               <button type="submit" class="btn btn-primary btnColor mb-2">Search</button>
             </div>
         </form> -->
-        <div class="w3-card">
+        <div class="w3-card mt-3">
 
         <table id="table-e" class="table table-sm table-bordered table-hover">
           <thead>
@@ -82,11 +82,11 @@
 // Data table
   $(document).ready(function(){
     $('#table-e').DataTable({
-      // dom: 'B<"clear">lfrtip',
-      // button: {
-      //   name: 'primary',
-      //   button: ['copy', 'csv', 'excel', 'pdf']
-      // }
+       dom: 'B<"clear">lfrtip',
+       button: {
+       name: 'primary',
+       button: ['copy', 'csv', 'excel', 'pdf']
+      }
     });
   });
 </script>

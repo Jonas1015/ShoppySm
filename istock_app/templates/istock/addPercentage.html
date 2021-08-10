@@ -17,12 +17,20 @@
                     </div>
                 {% endfor %}
             {%  endif %}
-            <div class="heading mt-5 mb-5">
+            <div class="heading mt-5">
             <h3> ADD PERCENTAGE</h3>
             </div>
-            <form action="" method="post">
+            <form action="" method="post" class="w3-card mt-3 pt-5 pb-4">
                 {% csrf_token %}
-              {{ form | crispy}}
+              <!-- {{ form | crispy}} -->
+              <div class="d-flex">
+                <div class="col-md-6">
+                  {{ form.name | as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                  {{ form.percent | as_crispy_field }}
+                </div>
+              </div>
                 <button class="btn btn-primary mt-5 btn-block" type="submit" name="button">Save</button>
             </form>
           </div>

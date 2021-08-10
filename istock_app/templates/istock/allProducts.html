@@ -33,7 +33,7 @@
               <button type="submit" class="btn text-white btnColor mb-2">Search</button>
             </div>
         </form> -->
-        <div class="sales-table w3-card mt-5">
+        <div class="sales-table w3-card mt-3">
           <table id="table" class="table table-responsive table-bordered table-hover">
             <thead>
               <tr>
@@ -83,19 +83,12 @@
 // Data table
   $(document).ready(function(){
     $('#table').DataTable({
-      // dom: 'B<"clear">lfrtip',
+      dom: 'B<"clear">lfrtip',
       button: {
         name: 'primary',
         button: ['copy', 'csv', 'excel', 'pdf']
       }
     });
-    // $('#table_2').DataTable({
-    //   dom: 'B<"clear">lfrtip',
-    //   button: {
-    //     name: 'primary',
-    //     button: ['copy', 'csv', 'excel', 'pdf']
-    //   }
-    // });
   });
 </script>
 {% endblock js %}

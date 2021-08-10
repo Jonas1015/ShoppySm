@@ -20,9 +20,28 @@
             <div class="heading">
             <h3> ADD NEW PRODUCT</h3>
             </div>
-            <form action="" method="post" class="mt-3">
+            <form action="" method="post" class="mt-3 pb-3 pt-4 w3-card">
               {% csrf_token %}
-              {{ form | crispy}}
+              <!-- {{ form | crispy}} -->
+              <div class="d-flex">
+                <div class="col-md-6">
+                  {{ form.code | as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                  {{ form.product_name | as_crispy_field }}
+                </div>
+              </div>
+              <div class="d-flex">
+                <div class="col-md-6">
+                  {{ form.quantity | as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                  {{ form.buying_price_per_each | as_crispy_field }}
+                </div>
+              </div>
+                <div class="col-md-12">
+                  {{ form.selling_price_per_each | as_crispy_field }}
+                </div>
               <button class="btn btn-primary btn-block" type="submit" name="button">Save</button>
             </form>
           </div>
